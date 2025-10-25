@@ -87,7 +87,7 @@ export default function Dashboard() {
               <div className="mb-2 flex items-start justify-between">
                 <div>
                   <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">
-                    총 옹알이
+                    총 대화수
                   </p>
                   <p className="text-3xl font-bold text-slate-900">
                     {report.vocalizations}
@@ -197,7 +197,7 @@ export default function Dashboard() {
                 <div>
                   <div className="mb-2 flex items-center justify-between">
                     <span className="text-sm font-medium text-slate-800">
-                      음절성 옹알이
+                      음절성 어휘
                     </span>
                     <span className="text-sm font-bold text-[#A678E3]">
                       상위 20%
