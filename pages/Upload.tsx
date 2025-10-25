@@ -102,8 +102,6 @@ export default function Upload() {
                       : "text-slate-500 hover:text-[#A678E3]"
                   }`}
                 >
-                  <UploadIcon size={14} />
-                  업로드
                 </button>
               </div>
             </div>
@@ -128,10 +126,10 @@ export default function Upload() {
                       <UploadIcon size={18} />
                       파일 선택
                     </button>
-                    <button className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-[#E17AA4] px-6 py-3 text-sm font-semibold text-[#E17AA4] transition hover:bg-white focus:outline-none focus:ring-2 focus:ring-[#E17AA4]/40 focus:ring-offset-2">
+                    {/* <button className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-[#E17AA4] px-6 py-3 text-sm font-semibold text-[#E17AA4] transition hover:bg-white focus:outline-none focus:ring-2 focus:ring-[#E17AA4]/40 focus:ring-offset-2">
                       <Mic size={18} />
                       바로 녹음하기
-                    </button>
+                    </button> */}
                   </div>
                 </div>
               </div>
