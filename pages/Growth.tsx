@@ -250,6 +250,9 @@ export default function Growth() {
                 <p className="text-xs font-semibold uppercase tracking-wide text-[#E17AA4]">Parent Assist</p>
                 <h3 className="text-xl font-bold text-slate-900">부모 코칭 알림</h3>
               </div>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                모든 발화는 억양·제스처와 함께 기록되어 부모 대시보드에 실시간 반영됩니다.
+              </p>
             </div>
             <ul className="space-y-4 text-sm leading-relaxed text-slate-600">
               <li>• 대화 후 5초 기다리기 알림이 저녁 7시에 전송됐어요.</li>
