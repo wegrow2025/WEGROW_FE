@@ -330,6 +330,24 @@ export default function Upload() {
                   </button>
                 </div>
 
+                  <div className="mt-5 flex items-center justify-between gap-4 rounded-2xl bg-white/70 px-4 py-3 shadow-inner">
+                  <div className="flex flex-1 items-end gap-1">
+                    
+                    {sample.waveform.map((height, index) => (
+                      <div
+                        key={`${sample.id}-${index}`}
+                        className="flex-1 rounded-sm bg-[#A678E3]/60"
+                        style={{ height: `${height}%`, minHeight: "4px" }}
+                      />
+                    ))}
+                  </div>
+                  <button
+                    onClick={() => speakText(sample.notes)}
+                    className="shrink-0 rounded-full border border-[#A678E3]/40 px-3 py-1 text-xs font-semibold text-[#A678E3] transition hover:bg-[#FDF5FF]"
+                  >
+                    ▶ 재생
+                  </button>
+                </div>
                 <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
                   <input
                     type="text"

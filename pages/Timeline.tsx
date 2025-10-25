@@ -36,9 +36,9 @@ export default function Timeline() {
               {
                 date: "오늘",
                 time: "14:32",
-                child: '"까까"',
+                child: '"무무"',
                 intent: "물품 요청",
-                response: '"물 주세요?" 라고 말해주세요',
+                response: '"물 주세요?" 라고 재질문해주세요',
               },
               {
                 date: "어제",
@@ -53,7 +53,7 @@ export default function Timeline() {
                 child: '"바바바"',
                 intent: "음성 실험",
                 response:
-                  '"바나나", "배", "버터" 같은 단어로 자연스럽게 모델링해주세요',
+                  '"바나나", "배", "버터" 같은 단어로 자연스럽게 유도해주세요',
               },
             ].map((item, idx) => (
               <div
@@ -101,7 +101,7 @@ export default function Timeline() {
 
                   <div className="rounded-2xl border border-[#F4D7E8] bg-[#FFF7FB] p-4">
                     <p className="text-xs font-semibold uppercase tracking-wide text-[#E17AA4]">
-                      권장 부모 반응
+                      부모님은 이렇게 해요
                     </p>
                     <p className="mt-2 text-sm font-medium text-slate-800">
                       💬 {item.response}
