@@ -11,16 +11,18 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Login() {
   const navigate = useNavigate();
+  const { setCurrentUser } = useAuth();
   const [email, setEmail] = useState("");
   const [pw, setPw] = useState("");
   const [remember, setRemember] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
@@ -34,33 +36,54 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const raw = localStorage.getItem("wegrow-users") || "[]";
-      const users: { email: string; password: string; name?: string }[] = JSON.parse(raw);
-      const found = users.find((u) => u.email === email);
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          email,
+          password: pw,
+          rememberMe: remember,
+        }),
+      });
 
-      if (!found || found.password !== pw) {
-        setLoading(false);
-        return setError("이메일 또는 비밀번호가 올바르지 않습니다.");
+      const payload = await response.json().catch(() => null);
+
+      if (!response.ok) {
+        const message =
+          (payload as { message?: string } | null)?.message || "이메일 또는 비밀번호가 올바르지 않습니다.";
+        throw new Error(message);
       }
 
-      // 로그인 성공 처리
-      const profile = { email: found.email, name: found.name ?? "사용자" };
+      const userData = (payload as { user?: unknown } | null)?.user ?? payload;
 
-      // 세션 지속성: remember 체크 시 localStorage, 아니면 sessionStorage
-      const storage = remember ? localStorage : sessionStorage;
-      storage.setItem("wegrow-login", "true");
-      storage.setItem("wegrow-current-user", JSON.stringify(profile));
+      if (userData && typeof userData === "object") {
+        const candidate = userData as Record<string, unknown>;
+        setCurrentUser({
+          name: typeof candidate.name === "string" ? candidate.name : undefined,
+          email: typeof candidate.email === "string" ? candidate.email : email,
+          childAge:
+            typeof candidate.childAge === "number"
+              ? candidate.childAge
+              : typeof candidate.childAge === "string"
+                ? Number(candidate.childAge)
+                : undefined,
+          ...candidate,
+        });
+      } else {
+        setCurrentUser({ email });
+      }
 
-      // 다른 저장소에 남아있을 수 있는 이전 세션 정보 정리
-      const other = remember ? sessionStorage : localStorage;
-      other.removeItem("wegrow-login");
-      other.removeItem("wegrow-current-user");
-
-      setLoading(false);
       navigate("/dashboard");
     } catch (err) {
+      console.error(err);
+      const message =
+        err instanceof Error ? err.message : "로그인 처리 중 오류가 발생했습니다.";
+      setError(message);
+    } finally {
       setLoading(false);
-      setError("로그인 처리 중 오류가 발생했습니다.");
     }
   };
 
