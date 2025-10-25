@@ -115,7 +115,6 @@ export default function Upload() {
                   onDrop={() => setDragActive(false)}
                 >
                   <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-sm mx-auto">
-                    <UploadIcon size={28} className="text-[#E17AA4]" />
                   </div>
                   <div className="space-y-2">
                     <h3 className="text-xl font-semibold text-slate-900">음성 파일을 드래그하거나 클릭해서 선택하세요</h3>
@@ -139,9 +138,10 @@ export default function Upload() {
 
         <section className="space-y-5 rounded-[36px] border border-[#F4D7E8] bg-white/90 p-8 sm:p-10 shadow-xl">
           <div className="text-center space-y-3">
-            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">최근 녹음 샘플</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">최근 녹음 항목</h2>
             <p className="mx-auto max-w-2xl text-sm sm:text-base leading-relaxed text-slate-600">
-              도담이가 분석 중인 샘플을 확인하고 필요한 메모를 남겨주세요. Growth 페이지에 반영될 내용을 미리 확인할 수 있어요.
+              {/* 도담이가 분석 중인 샘플을 확인하고 필요한 메모를 남겨주세요. Growth 페이지에 반영될 내용을 미리 확인할 수 있어요. */}
+              업로드한 샘플의 상태를 확인하고, 생성된 응답을 확인할 수 있습니다.
             </p>
           </div>
 
