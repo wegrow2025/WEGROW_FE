@@ -53,8 +53,13 @@ export default function Login() {
             </form>
             <p className="text-center text-sm text-muted-foreground">
               아직 계정이 없으신가요?{" "}
-              <Button variant="link" type="button" className="h-auto p-0 text-sm font-semibold">
-                가입하기
+              <Button
+                variant="link"
+                type="button"
+                className="h-auto p-0 text-sm font-semibold"
+                asChild
+              >
+                <Link to="/register">가입하기</Link>
               </Button>
             </p>
             <div className="pt-2 text-center text-xs text-muted-foreground">
