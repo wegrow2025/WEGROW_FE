@@ -21,7 +21,7 @@ const navItems = [
   { path: "/dashboard", label: "홈", icon: Home },
   { path: "/timeline", label: "타임라인", icon: Clock },
   { path: "/growth", label: "성장분석", icon: TrendingUp },
-  { path: "/tips", label: "팁", icon: Lightbulb },
+  // { path: "/tips", label: "팁", icon: Lightbulb },
 ];
 
 export function Layout({ children, showNav = true }: LayoutProps) {
@@ -97,7 +97,7 @@ export function Layout({ children, showNav = true }: LayoutProps) {
             className="flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-600 hover:bg-[#FDF2F7] transition"
           >
             <Upload size={20} />
-            <span>녹음/업로드</span>
+            <span>샘플 업로드</span>
           </Link>
           <Link
             to="/settings"
