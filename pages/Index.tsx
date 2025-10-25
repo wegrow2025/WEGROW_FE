@@ -1,6 +1,8 @@
 import { DemoResponse } from "@shared/api";
 import { useEffect, useState } from "react";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
+
 export default function Index() {
   const [exampleFromServer, setExampleFromServer] = useState("");
   // Fetch users on component mount
@@ -11,7 +13,7 @@ export default function Index() {
   // Example of how to fetch data from the server (if needed)
   const fetchDemo = async () => {
     try {
-      const response = await fetch("/api/demo");
+      const response = await fetch(`${API_BASE_URL}/api/demo`);
       const data = (await response.json()) as DemoResponse;
       setExampleFromServer(data.message);
     } catch (error) {

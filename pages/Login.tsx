@@ -13,6 +13,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
+
 export default function Login() {
   const navigate = useNavigate();
   const { setCurrentUser } = useAuth();
@@ -36,7 +38,9 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const response = await fetch("/api/auth/login", {
+
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+
         method: "POST",
         headers: {
           "Content-Type": "application/json",

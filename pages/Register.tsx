@@ -13,6 +13,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
+
 export default function Register() {
   const navigate = useNavigate();
   const { setCurrentUser } = useAuth();
@@ -44,7 +46,8 @@ export default function Register() {
     setLoading(true);
 
     try {
-      const response = await fetch("/api/auth/register", {
+      const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+
         method: "POST",
         headers: {
           "Content-Type": "application/json",
