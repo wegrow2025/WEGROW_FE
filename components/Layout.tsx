@@ -21,7 +21,7 @@ const navItems = [
   { path: "/dashboard", label: "홈", icon: Home },
   { path: "/timeline", label: "타임라인", icon: Clock },
   { path: "/growth", label: "성장분석", icon: TrendingUp },
-  { path: "/tips", label: "팁", icon: Lightbulb },
+  // { path: "/tips", label: "팁", icon: Lightbulb },
 ];
 
 export function Layout({ children, showNav = true }: LayoutProps) {

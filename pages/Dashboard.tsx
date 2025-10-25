@@ -75,7 +75,7 @@ export default function Dashboard() {
               <div className="flex items-start justify-between mb-2">
                 <div>
                   <p className="text-sm text-muted-foreground mb-1">
-                    총 옹알이
+                    총 대화 횟수
                   </p>
                   <p className="text-3xl font-bold text-foreground">
                     {report.vocalizations}
@@ -180,7 +180,7 @@ export default function Dashboard() {
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-medium text-foreground">
-                    음절성 옹알이
+                    음절성 어휘
                   </span>
                   <span className="text-sm font-bold text-primary">
                     상위 20%
