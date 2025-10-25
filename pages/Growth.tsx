@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 import { Layout } from "@/components/Layout";
 import {
   Sparkles,
@@ -11,6 +11,8 @@ import {
   Play,
 } from "lucide-react";
 import { toast } from "sonner";
+import { createGrowthReportDocument } from "@/lib/growth-report-pdf";
+import { loadReactPdf } from "@/lib/react-pdf";
 
 const progressMetrics = [
   {
@@ -141,98 +143,43 @@ const recommendations = [
 ];
 
 export default function Growth() {
-  const reportRef = useRef<HTMLDivElement>(null);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
   const handleDownloadPdf = useCallback(async () => {
-    if (!reportRef.current) {
-      toast.error("보고서 영역을 찾지 못했어요. 페이지를 새로고침 해주세요.");
-      return;
-    }
-
-    const html2canvasFn = window.html2canvas;
-    const pdfConstructor = window.jspdf?.jsPDF;
-
-    if (!html2canvasFn || !pdfConstructor) {
-      toast.error("PDF 생성을 위한 라이브러리를 불러오지 못했어요. 네트워크 상태를 확인해주세요.");
-      return;
-    }
-
     setIsGeneratingPdf(true);
 
     try {
-      await document.fonts.ready;
-
-      const element = reportRef.current;
-      const scale = Math.min(4, (window.devicePixelRatio || 1) * 2);
-      const canvas = await html2canvasFn(element, {
-        scale,
-        useCORS: true,
-        backgroundColor: "#ffffff",
-        logging: false,
-        windowWidth: element.scrollWidth,
-        windowHeight: element.scrollHeight,
+      const reactPdf = await loadReactPdf();
+      const pdfDocumentElement = createGrowthReportDocument(reactPdf, {
+        progressMetrics,
+        dailyMoments,
+        stageGuides,
+        recommendations,
       });
 
-      const pdf = new pdfConstructor("p", "mm", "a4");
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
+      const instance = reactPdf.pdf(pdfDocumentElement);
+      const blob = await instance.toBlob();
 
-      const canvasWidth = canvas.width;
-      const canvasHeight = canvas.height;
-      const pxPerMm = canvasWidth / pageWidth;
-      const pageCanvasHeightPx = Math.floor(pxPerMm * pageHeight);
-
-      if (!pageCanvasHeightPx) {
-        throw new Error("PDF 페이지 높이를 계산하지 못했어요.");
-      }
-      const pageCount = Math.max(1, Math.ceil(canvasHeight / pageCanvasHeightPx));
-
-      for (let pageIndex = 0; pageIndex < pageCount; pageIndex += 1) {
-        const pageCanvas = document.createElement("canvas");
-        const context = pageCanvas.getContext("2d");
-
-        if (!context) {
-          throw new Error("PDF 캔버스 생성에 실패했어요.");
-        }
-
-        const sliceHeight = Math.min(
-          pageCanvasHeightPx,
-          canvasHeight - pageIndex * pageCanvasHeightPx,
-        );
-
-        pageCanvas.width = canvasWidth;
-        pageCanvas.height = sliceHeight;
-
-        context.drawImage(
-          canvas,
-          0,
-          pageIndex * pageCanvasHeightPx,
-          canvasWidth,
-          sliceHeight,
-          0,
-          0,
-          canvasWidth,
-          sliceHeight,
-        );
-
-        const imgData = pageCanvas.toDataURL("image/png", 1.0);
-        const pdfImageHeight = (sliceHeight * pageWidth) / canvasWidth;
-
-        if (pageIndex > 0) {
-          pdf.addPage();
-        }
-
-        pdf.addImage(imgData, "PNG", 0, 0, pageWidth, pdfImageHeight, undefined, "SLOW");
+      if (!blob || blob.size === 0) {
+        throw new Error("생성된 PDF 데이터가 비어있어요.");
       }
 
-      pdf.setProperties({ title: "WeGrow-Weekly-Growth-Report" });
-      pdf.save("wegrow-growth-report.pdf");
+      const objectUrl = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = objectUrl;
+      anchor.download = "wegrow-growth-report.pdf";
+      anchor.rel = "noopener";
+      document.body.appendChild(anchor);
+      anchor.click();
+      document.body.removeChild(anchor);
+      URL.revokeObjectURL(objectUrl);
 
       toast.success("성장 리포트를 PDF로 저장했어요!");
     } catch (error) {
       console.error("Failed to generate PDF", error);
-      toast.error("PDF 생성 중 오류가 발생했어요. 잠시 후 다시 시도해주세요.");
+      toast.error(
+        "PDF 생성에 실패했어요. 네트워크 연결을 확인한 뒤 다시 시도해주세요.",
+      );
     } finally {
       setIsGeneratingPdf(false);
     }
@@ -240,9 +187,33 @@ export default function Growth() {
 
   return (
     <Layout showNav={true}>
-      <div className="max-w-6xl mx-auto px-4 sm:px-8 py-6 space-y-6">
-        
-        <div ref={reportRef} className="space-y-16">
+      <div className="max-w-6xl mx-auto px-4 sm:px-8 py-12 space-y-6">
+        <div className="flex justify-end">
+          <button
+            type="button"
+            onClick={handleDownloadPdf}
+            disabled={isGeneratingPdf}
+            className="inline-flex items-center gap-2 rounded-full bg-[#A678E3] px-5 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-[#8f5cd1] focus:outline-none focus:ring-2 focus:ring-[#A678E3]/40 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-[#CDB7F2]"
+            aria-live="polite"
+            aria-busy={isGeneratingPdf}
+          >
+            {isGeneratingPdf ? (
+              <>
+                <span className="inline-flex h-4 w-4 items-center justify-center">
+                  <span className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                </span>
+                <span>PDF 생성 중...</span>
+              </>
+            ) : (
+              <>
+                <Download size={16} />
+                <span>PDF로 저장하기</span>
+              </>
+            )}
+          </button>
+        </div>
+
+        <div className="space-y-16">
           {/* Hero / Snapshot */}
           <section className="relative overflow-hidden rounded-[40px] bg-gradient-to-br from-[#FDE4EC] via-[#F4E5FB] to-[#E0F1FF] p-8 sm:p-12 shadow-xl">
             <div className="absolute -top-16 -left-10 h-44 w-44 rounded-full bg-white/40 blur-3xl" />
@@ -421,35 +392,39 @@ export default function Growth() {
           <p className="text-center text-xs text-slate-500">
             💡 소아과나 언어치료 상담 때 리포트를 함께 보여주시면, 더 꼭 맞는 조언을 빠르게 받으실 수 있어요.
           </p>
-
-            
+          <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+            <button
+              type="button"
+              onClick={handleDownloadPdf}
+              disabled={isGeneratingPdf}
+              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 rounded-full bg-[#E17AA4] px-6 py-3 font-semibold text-white shadow-sm transition hover:bg-[#d0648f] focus:outline-none focus:ring-2 focus:ring-[#E17AA4]/40 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-[#f0a6c6]"
+              aria-live="polite"
+              aria-busy={isGeneratingPdf}
+            >
+              {isGeneratingPdf ? (
+                <>
+                  <span className="inline-flex h-4 w-4 items-center justify-center">
+                    <span className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  </span>
+                  <span>PDF 생성 중...</span>
+                </>
+              ) : (
+                <>
+                  <Download size={18} />
+                  <span>리포트 PDF 다운로드</span>
+                </>
+              )}
+            </button>
+            <button
+              type="button"
+              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 rounded-full border-2 border-[#A678E3] px-6 py-3 font-semibold text-[#A678E3] transition hover:bg-[#FDF5FF] focus:outline-none focus:ring-2 focus:ring-[#A678E3]/30 focus:ring-offset-2"
+            >
+              <Share2 size={18} />
+              보호자와 공유하기
+            </button>
+          </div>
           
         </section>
-        <div className="flex justify-center">
-          <button
-            type="button"
-            onClick={handleDownloadPdf}
-            disabled={isGeneratingPdf}
-            className="inline-flex items-center gap-2 rounded-full bg-[#A678E3] px-5 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-[#8f5cd1] focus:outline-none focus:ring-2 focus:ring-[#A678E3]/40 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-[#CDB7F2]"
-            aria-live="polite"
-            aria-busy={isGeneratingPdf}
-          >
-            {isGeneratingPdf ? (
-              <>
-                <span className="inline-flex h-4 w-4 items-center justify-center">
-                  <span className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                </span>
-                <span>PDF 생성 중...</span>
-              </>
-            ) : (
-              <>
-                <Download size={16} />
-                <span>PDF로 저장하기</span>
-              </>
-            )}
-          </button>
-        </div>
-
         </div>
       </div>
     </Layout>
