@@ -1,18 +1,12 @@
-import { useCallback, useState } from "react";
 import { Layout } from "@/components/Layout";
 import {
   Sparkles,
   MessageCircleHeart,
   BookOpen,
-  Download,
-  Share2,
   Brain,
   HandHeart,
   Play,
 } from "lucide-react";
-import { toast } from "sonner";
-import { createGrowthReportDocument } from "@/lib/growth-report-pdf";
-import { ensurePdfMakeFonts, loadPdfMake } from "@/lib/pdfmake";
 
 const progressMetrics = [
   {
@@ -143,61 +137,6 @@ const recommendations = [
 ];
 
 export default function Growth() {
-  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
-
-  const handleDownloadPdf = useCallback(async () => {
-    setIsGeneratingPdf(true);
-
-    try {
-      const pdfMake = await loadPdfMake();
-      await ensurePdfMakeFonts(pdfMake);
-
-      const docDefinition = createGrowthReportDocument({
-        progressMetrics,
-        dailyMoments,
-        stageGuides,
-        recommendations,
-      });
-
-      const blob = await new Promise<Blob>((resolve, reject) => {
-        try {
-          pdfMake.createPdf(docDefinition).getBlob((generatedBlob) => {
-            if (generatedBlob && generatedBlob.size > 0) {
-              resolve(generatedBlob);
-            } else {
-              reject(new Error("생성된 PDF 데이터가 비어있어요."));
-            }
-          });
-        } catch (error) {
-          reject(
-            error instanceof Error
-              ? error
-              : new Error("PDF 생성 중 알 수 없는 오류가 발생했어요."),
-          );
-        }
-      });
-
-      const objectUrl = URL.createObjectURL(blob);
-      const anchor = document.createElement("a");
-      anchor.href = objectUrl;
-      anchor.download = "wegrow-growth-report.pdf";
-      anchor.rel = "noopener";
-      document.body.appendChild(anchor);
-      anchor.click();
-      document.body.removeChild(anchor);
-      URL.revokeObjectURL(objectUrl);
-
-      toast.success("성장 리포트를 PDF로 저장했어요!");
-    } catch (error) {
-      console.error("Failed to generate PDF", error);
-      toast.error(
-        "PDF 생성에 실패했어요. 네트워크 연결을 확인한 뒤 다시 시도해주세요.",
-      );
-    } finally {
-      setIsGeneratingPdf(false);
-    }
-  }, []);
-
   return (
     <Layout showNav={true}>
       <div className="max-w-6xl mx-auto px-4 sm:px-8 py-4 space-y-6">
@@ -381,30 +320,6 @@ export default function Growth() {
             💡 소아과나 언어치료 상담 때 리포트를 함께 보여주시면, 더 꼭 맞는 조언을 빠르게 받으실 수 있어요.
           </p>
         </section>
-                  <div className="flex justify-center py-12">
-          <button
-            type="button"
-            onClick={handleDownloadPdf}
-            disabled={isGeneratingPdf}
-            className="inline-flex items-center gap-2 rounded-full bg-[#A678E3] px-5 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-[#8f5cd1] focus:outline-none focus:ring-2 focus:ring-[#A678E3]/40 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-[#CDB7F2]"
-            aria-live="polite"
-            aria-busy={isGeneratingPdf}
-          >
-            {isGeneratingPdf ? (
-              <>
-                <span className="inline-flex h-4 w-4 items-center justify-center">
-                  <span className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                </span>
-                <span>PDF 생성 중...</span>
-              </>
-            ) : (
-              <>
-                <Download size={16} />
-                <span>PDF로 저장하기</span>
-              </>
-            )}
-          </button>
-        </div>
         </div>
       </div>
     </Layout>
