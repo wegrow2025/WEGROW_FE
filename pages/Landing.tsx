@@ -22,12 +22,6 @@ export default function Landing() {
           >
             로그인
           </Link>
-          <Link
-            to="/dashboard"
-            className="px-4 py-2 rounded-full bg-[#E17AA4] text-white hover:bg-[#d0648f] transition shadow-sm"
-          >
-            시작하기
-          </Link>
         </div>
       </nav>
 
@@ -44,17 +38,6 @@ export default function Landing() {
             <p className="text-lg text-slate-600 leading-relaxed">
               도담은 아이의 발화를 세심하게 듣고, 나이에 맞춘 말걸기와 놀이로 언어 능력을 차근차근 키워줍니다. 아이가 어떤 방식으로든 표현하면 즉시 반응하며, 부모에게는 오늘 바로 활용할 수 있는 대화 가이드를 전해요.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Link
-                to="/dashboard"
-                className="px-8 py-3 rounded-full bg-[#E17AA4] text-white font-semibold hover:bg-[#d0648f] transition flex items-center justify-center gap-2 shadow-sm"
-              >
-                무료로 시작하기 <ArrowRight size={20} />
-              </Link>
-              {/* <button className="px-8 py-3 rounded-full border-2 border-[#E17AA4] text-[#E17AA4] font-semibold hover:bg-[#FDF2F7] transition flex items-center justify-center gap-2">
-                데모 보기 <Play size={20} />
-              </button> */}
-            </div>
           </div>
           <div className="bg-white rounded-3xl border border-[#F4D7E8] shadow-xl p-8 relative overflow-hidden">
             <div className="absolute -top-20 -right-12 w-64 h-64 bg-[#FDE4EC] rounded-full blur-3xl opacity-80" />
@@ -266,20 +249,6 @@ export default function Landing() {
           <p className="text-lg text-slate-700 max-w-2xl mx-auto mb-8">
             아이의 모든 시도를 존중하고 확장해주는 말놀이 파트너. 부모는 도담과 함께 더 따뜻하고 풍부한 대화를 준비할 수 있습니다.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              to="/dashboard"
-              className="px-8 py-3 rounded-full bg-[#E17AA4] text-white font-semibold hover:bg-[#d0648f] transition shadow-sm"
-            >
-              무료로 시작하기 →
-            </Link>
-            {/* <Link
-              to="/register"
-              className="px-8 py-3 rounded-full border-2 border-white/60 bg-white/30 text-slate-800 font-semibold hover:bg-white/50 transition"
-            >
-              도담 소식 받기
-            </Link> */}
-          </div>
         </div>
       </section>
 
