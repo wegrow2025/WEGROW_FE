@@ -45,7 +45,6 @@ interface GrowthReport {
   parentAssist: string[];
 }
 
-
 const progressMetrics = [
   {
     label: "활용 어휘",
@@ -63,14 +62,6 @@ const progressMetrics = [
     progress: 72,
     color: "#A678E3",
   },
-  // {
-  //   label: "신호 이해도",
-  //   value: "93%",
-  //   helper: "말맥락·요청 파악",
-  //   trend: "5% 더 좋아졌어요!",
-  //   progress: 93,
-  //   color: "#7EC4CF",
-  // },
 ];
 
 const focusAreas = [
@@ -95,12 +86,6 @@ const focusAreas = [
 ];
 
 const dailyMoments = [
-  // {
-  //   time: "아침 식사",
-  //   script:
-  //     '아이: "우유" → 도담: "우-유 마실래? 우유 컵을 두 손으로 잡아볼까?"',
-  //   focus: "핵심 단어 반복으로 주의 집중",
-  // },
   {
     time: "놀이 시간(블록)",
     script:
@@ -119,26 +104,9 @@ const dailyMoments = [
       '아이: "신발" → 도담: "신발 정리하자. 신발—여기, 신발장에 쏙! 우리 같이 넣어볼까?"',
     focus: "동작과 말 연결(행동 언어화)",
   },
-  // {
-  //   time: "잠자리",
-  //   script:
-  //     '아이: "더 보고 싶어" → 도담: "더 보고 싶구나. 마지막 한 장만 보고, 이제 불 끌까—괜찮을까?"',
-  //   focus: "공감 + 선택형 마무리로 이행 돕기",
-  // },
 ];
 
 const stageGuides = [
-  // {
-  //   stage: "18개월 포인트",
-  //   color: "#E17AA4",
-  //   summary: "10~15개 단어와 소리에 반응이 풍부해요",
-  //   actions: [
-  //     "집안 사물에 이름 붙여주기 + 동물 소리 흉내내기 🐶",
-  //     "아이가 소리 내면 그 뜻을 말로 덧붙여주기",
-  //     '아이 말 뒤엔 “그렇구나~” “그게 뭐야?”처럼 짧게 이어가기',
-  //   ],
-  //   example: '예: "토토" → "토끼구나! 토끼는 폴짝폴짝 뛰지?" 🐰',
-  // },
   {
     stage: "24개월 포인트",
     color: "#A678E3",
@@ -188,17 +156,17 @@ export default function Growth() {
   const fetchGrowthData = async () => {
     try {
       setLoading(true);
-      const response = await authenticatedFetch('/api/growth/weekly-report');
+      const response = await authenticatedFetch("/api/growth/weekly-report");
 
       if (!response.ok) {
-        throw new Error('성장 데이터를 불러오는데 실패했습니다.');
+        throw new Error("성장 데이터를 불러오는데 실패했습니다.");
       }
 
       const data = await response.json();
       setGrowthData(data);
     } catch (err) {
-      console.error('Growth data fetch error:', err);
-      setError(err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.');
+      console.error("Growth data fetch error:", err);
+      setError(err instanceof Error ? err.message : "알 수 없는 오류가 발생했습니다.");
     } finally {
       setLoading(false);
     }
@@ -210,8 +178,8 @@ export default function Growth() {
       return;
     }
 
-    const html2canvasFn = window.html2canvas;
-    const pdfConstructor = window.jspdf?.jsPDF;
+    const html2canvasFn = (window as any).html2canvas;
+    const pdfConstructor = (window as any).jspdf?.jsPDF;
 
     if (!html2canvasFn || !pdfConstructor) {
       toast.error("PDF 생성을 위한 라이브러리를 불러오지 못했어요. 네트워크 상태를 확인해주세요.");
@@ -256,10 +224,7 @@ export default function Growth() {
           throw new Error("PDF 캔버스 생성에 실패했어요.");
         }
 
-        const sliceHeight = Math.min(
-          pageCanvasHeightPx,
-          canvasHeight - pageIndex * pageCanvasHeightPx,
-        );
+        const sliceHeight = Math.min(pageCanvasHeightPx, canvasHeight - pageIndex * pageCanvasHeightPx);
 
         pageCanvas.width = canvasWidth;
         pageCanvas.height = sliceHeight;
@@ -473,6 +438,7 @@ export default function Growth() {
                 아이의 목소리는 좌측 메뉴의 타임라인에서 확인할수 있어요!
               </p>
             </div>
+
             {growthData.stageGuides?.map((stage) => (
               <div
                 key={stage.stage}
@@ -543,11 +509,9 @@ export default function Growth() {
             <p className="text-center text-xs text-slate-500">
               💡 소아과나 언어치료 상담 때 리포트를 함께 보여주시면, 더 꼭 맞는 조언을 빠르게 받으실 수 있어요.
             </p>
-
-
-
           </section>
-          <div className="flex justify-center">
+
+          <div className="flex justify-center py-6">
             <button
               type="button"
               onClick={handleDownloadPdf}
@@ -571,7 +535,6 @@ export default function Growth() {
               )}
             </button>
           </div>
-
         </div>
       </div>
     </Layout>
