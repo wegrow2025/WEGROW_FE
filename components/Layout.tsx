@@ -29,6 +29,9 @@ export function Layout({ children, showNav = true }: LayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const isLanding = location.pathname === "/" && !showNav;
 
+  // public 폴더 기준 경로 사용 (Vite/CRA 공통): /DodamLogo.png
+  const logoSrc = "/DodamLogo.png"; // 실제 확장자에 맞게 수정(.svg/.webp 가능)
+
   if (isLanding) {
     return <>{children}</>;
   }
@@ -37,12 +40,18 @@ export function Layout({ children, showNav = true }: LayoutProps) {
     <div className="min-h-screen bg-gradient-to-br from-[#FFF9F4] via-[#FEEFF7] to-[#F7F6FF] text-slate-900 flex flex-col lg:flex-row">
       {/* Mobile Header */}
       <div className="lg:hidden flex items-center justify-between h-16 px-4 border-b border-[#F4D7E8] bg-white/80 backdrop-blur-md shadow-sm fixed top-0 left-0 right-0 z-40">
-        <Link to="/" className="text-lg font-bold text-[#E17AA4]">
-          We:Grow
+        <Link to="/dashboard" className="flex items-center">
+          <img
+            src={logoSrc}
+            alt="도담 로고"
+            className="h-7 w-auto object-contain"
+            loading="eager"
+          />
         </Link>
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
           className="p-2 hover:bg-[#FDF2F7] rounded-md text-slate-600"
+          aria-label={sidebarOpen ? "메뉴 닫기" : "메뉴 열기"}
         >
           {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
@@ -50,16 +59,16 @@ export function Layout({ children, showNav = true }: LayoutProps) {
 
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex flex-col w-64 border-r border-[#F4D7E8] bg-white/80 backdrop-blur-xl h-screen fixed top-0 left-0">
-        <div className="flex items-center gap-3 h-20 px-6 border-b border-[#F4D7E8] bg-white/70">
-          <div className="w-10 h-10 rounded-2xl bg-[#F7B5C3] flex items-center justify-center text-lg shadow-sm">
-            🐭
-          </div>
-          <div className="flex flex-col">
-            <span className="text-xl font-extrabold tracking-tight text-slate-900">
-              도담
-            </span>
-            <span className="text-xs text-slate-500">말놀이 성장 파트너</span>
-          </div>
+        {/* 로고 영역: 텍스트/원 제거, 이미지 단독 사용 */}
+        <div className="flex items-center justify-start h-20 px-0 border-b border-[#F4D7E8] bg-white/70">
+          <Link to="/dashboard" className="flex items-center">
+            <img
+              src={logoSrc}
+              alt="도담 로고"
+              className="h-21 w-auto object-contain"
+              loading="eager"
+            />
+          </Link>
         </div>
 
         <nav className="flex-1 px-4 py-6 space-y-2">

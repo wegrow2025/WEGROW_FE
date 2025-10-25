@@ -15,23 +15,23 @@ const progressMetrics = [
     label: "활용 어휘",
     value: "42 단어",
     helper: "목표 50 단어",
-    trend: "지난주 +6",
+    trend: "지난주보다 6개 늘었어요!",
     progress: 84,
     color: "#E17AA4",
   },
   {
-    label: "두 단어 조합",
+    label: "두 단어 말하기",
     value: "1일 9회",
-    helper: "자발 표현",
-    trend: "+3회",
+    helper: "자연스러운 말 잇기",
+    trend: "3번 더 늘었어요!",
     progress: 72,
     color: "#A678E3",
   },
   {
-    label: "제스처 이해",
+    label: "제스처 알아보기",
     value: "93%",
-    helper: "응답 정확도",
-    trend: "+5%p",
+    helper: "표정·손짓 이해",
+    trend: "5% 더 좋아졌어요!",
     progress: 93,
     color: "#7EC4CF",
   },
@@ -40,85 +40,86 @@ const progressMetrics = [
 const focusAreas = [
   {
     icon: <MessageCircleHeart className="text-[#E17AA4]" size={26} />,
-    title: "상호작용 신호 포착",
+    title: "아이가 보내는 신호 알아차리기",
     description:
-      "아이가 말 대신 손짓·표정으로 보여주는 의도를 실시간으로 인식하고 부모에게 자막처럼 알려줘요.",
+      "아이가 말 대신 손짓이나 표정으로 이야기할 때, 도담이 그 마음을 읽고 부모님께 살짝 알려줘요 💕",
   },
   {
     icon: <BookOpen className="text-[#A678E3]" size={26} />,
-    title: "모델링 문장 제시",
+    title: "따라 말하기·이어 말하기",
     description:
-      "아이 발화 직후 맞장구 → 재진술 → 확장 문장 순서로 다음 표현을 자연스럽게 이어가요.",
+      "아이가 한 말을 도담이 다시 들려주고, 자연스럽게 다음 문장으로 이어가요. ‘맞아!’ ‘그다음은?’처럼요 😊",
   },
   {
     icon: <Sparkles className="text-[#F08AA4]" size={26} />,
-    title: "놀이형 언어 자극",
+    title: "놀이로 배우는 말",
     description:
-      "소리 흉내, 역할 놀이, 손 인형 스토리 등 18~24개월에 적합한 언어 게임을 큐레이션합니다.",
+      "소리 따라하기, 역할놀이, 손인형 이야기 등 재미있는 놀이 속에서 언어가 쑥쑥 자라요 🎈",
   },
 ];
 
 const dailyMoments = [
   {
     time: "아침 식사",
-    script: '아이: "멍멍" → 도담: "멍멍이가 밥 먹을까? 손가락으로 가리켜줄래?"',
-    focus: "소리와 제스처 연결",
+    script: '아이: "멍멍" → 도담: "멍멍이가 밥 먹을까? 손가락으로 가리켜볼까?"',
+    focus: "소리와 행동 연결하기",
   },
   {
     time: "낮 산책",
-    script: '아이: "더 물" → 도담: "물 더 마시고 싶구나. 컵을 잡아볼까?"',
-    focus: "두 단어 조합 확장",
+    script: '아이: "더 물" → 도담: "물 더 마시고 싶구나~ 컵을 잡아볼까?"',
+    focus: "두 단어로 표현 넓히기",
   },
   {
     time: "잠자리",
-    script: '아이: "책 읽어" → 도담: "어떤 책이 좋아? 고양이 이야기 골라볼까?"',
-    focus: "선택 질문 연습",
+    script: '아이: "책 읽어" → 도담: "어떤 책이 좋을까? 고양이 책 읽어볼까?"',
+    focus: "질문으로 대화 이어가기",
   },
 ];
 
 const stageGuides = [
   {
-    stage: "18개월 집중 포인트",
+    stage: "18개월 포인트",
     color: "#E17AA4",
-    summary: "10~15개 단어와 의태어에 풍부한 반응",
+    summary: "10~15개 단어와 소리에 반응이 풍부해요",
     actions: [
-      "일상 사물에 이름 붙이기 + 소리 흉내",
-      "손짓, 끄덕임 등 비언어 반응을 즉시 말로 옮겨주기",
-      '아이 발화 후 "맞아" → "그게 뭐지?" 식의 짧은 질문으로 이어가기',
+      "집안 사물에 이름 붙여주기 + 동물 소리 흉내내기 🐶",
+      "아이가 손짓하면 그 뜻을 말로 대신 표현해주기",
+      '아이 말 뒤엔 “그렇구나~” “그게 뭐야?”처럼 짧게 이어가기',
     ],
-    example: '오늘의 모델: "토토" → "토끼구나! 토끼는 폴짝 뛰지?"',
+    example: '예: "토토" → "토끼구나! 토끼는 폴짝폴짝 뛰지?" 🐰',
   },
   {
-    stage: "24개월 집중 포인트",
+    stage: "24개월 포인트",
     color: "#A678E3",
-    summary: "50+ 단어, 두 단어 조합의 폭넓은 활용",
+    summary: "50개 이상의 단어로 두 단어 문장을 말해요!",
     actions: [
-      "선택형 질문으로 대답을 유도하고 기다리기",
-      "아이 문장을 받아 더 긴 문장으로 재구성하기",
-      "역할 놀이 속 감정 단어(기뻐, 속상해) 소개",
+      "‘무슨 색 좋아?’처럼 선택 질문으로 대화 유도하기 🎨",
+      "아이의 짧은 말을 더 긴 문장으로 이어 말해주기",
+      "역할놀이로 감정 단어(기뻐, 속상해 등) 알려주기 💕",
     ],
-    example: '오늘의 모델: "더 우유" → "우유 더 마시고 싶구나. 컵을 두 손으로 잡아볼까?"',
+    example:
+      '예: "더 우유" → "우유 더 마시고 싶구나~ 컵을 두 손으로 잡아볼까?" 🍼',
   },
 ];
 
 const recommendations = [
   {
-    title: "대화 확장 루틴",
+    title: "대화 늘리기 루틴",
     detail:
-      "하루 3회, 아이 발화 후 5초 기다리고 확장 문장을 들려주는 루틴을 제안해요.",
-    tip: "타이머 알림으로 부모 참여 시간대를 고정하면 아이가 예측 가능성을 느낍니다.",
+      "하루에 세 번, 아이가 말한 뒤 5초 기다렸다가 도담이 문장을 이어주는 습관을 만들어보세요.",
+    tip: "매일 같은 시간에 하면 아이가 ‘이 시간엔 도담이랑 얘기하는구나!’ 하고 기대하게 돼요 💬",
   },
   {
-    title: "환경 단어 탐색",
+    title: "집 안 단어 탐험",
     detail:
-      "집 안 물건에 단어 라벨을 붙이고, 로봇이 라벨을 읽어주면 아이가 즉시 손짓으로 반응해요.",
-    tip: "주간 목표 단어 6개를 정해 반복 노출하세요.",
+      "컵, 의자, 신발 같은 물건에 이름표를 붙여요. 도담이 읽어주면 아이가 손으로 가리키며 배워요!",
+    tip: "이번 주엔 새로운 단어 6개를 골라 집중해볼까요? 📘",
   },
   {
-    title: "역할 놀이 확장",
+    title: "인형과 감정 놀이",
     detail:
-      "잠자리 전 5분 동안 인형과 함께 감정 표현과 선택 질문을 주고받도록 유도합니다.",
-    tip: "“무슨 느낌이야?” 같은 감정 질문을 포함하세요.",
+      "잠자기 전에 인형과 대화하며 오늘의 기분을 말로 표현해보세요. ‘기뻐요’, ‘무서워요’ 같은 말이 좋아요.",
+    tip: "“어떤 느낌이야?” 같은 질문으로 마음을 말하게 해주세요 💖",
   },
 ];
 
@@ -126,35 +127,37 @@ export default function Growth() {
   return (
     <Layout showNav={true}>
       <div className="max-w-6xl mx-auto px-4 sm:px-8 py-12 space-y-16">
+        {/* Hero / Snapshot */}
         <section className="relative overflow-hidden rounded-[40px] bg-gradient-to-br from-[#FDE4EC] via-[#F4E5FB] to-[#E0F1FF] p-8 sm:p-12 shadow-xl">
           <div className="absolute -top-16 -left-10 h-44 w-44 rounded-full bg-white/40 blur-3xl" />
           <div className="absolute -bottom-12 -right-8 h-48 w-48 rounded-full bg-[#E7D7FA]/60 blur-3xl" />
           <div className="relative grid gap-10 lg:grid-cols-[1.1fr,1fr] items-start">
             <div className="space-y-6">
               <span className="inline-flex items-center gap-2 rounded-full bg-white/70 px-4 py-1 text-sm font-semibold text-[#E17AA4] shadow-sm">
-                이번 주 성장 스냅샷
+                이번 주 도담 성장 이야기 💕
               </span>
               <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 leading-tight">
-                대화로 확인하는 18~24개월 언어 성장
+                말로 표현하는 즐거움이 쑥쑥 자라는 중이에요!
               </h1>
               <p className="text-base sm:text-lg leading-relaxed text-slate-700">
-                도담은 아이의 옹알이, 두 단어 조합, 손짓까지 빠짐없이 포착해 즉각 반응합니다. 시각적으로 정리된 상단 지표로 지금 어디까지 성장했는지 한눈에 확인하세요.
+                도담은 아이의 옹알이, 손짓, 두 단어 말까지 꼼꼼히 듣고 따뜻하게 반응해요.
+                이번 주 아이가 어떤 말을 배우고, 얼마나 대화가 늘었는지 함께 살펴볼까요? 🌼
               </p>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 <div className="rounded-2xl bg-white/80 px-4 py-5 shadow-sm border border-white/60">
                   <p className="text-xs font-semibold uppercase tracking-wide text-[#A678E3]">주요 어휘</p>
                   <p className="mt-2 text-3xl font-bold text-slate-900">42</p>
-                  <p className="text-xs text-slate-500">지난달 대비 +18%</p>
+                  <p className="text-xs text-slate-500">지난달보다 단어가 18% 늘었어요 👏</p>
                 </div>
                 <div className="rounded-2xl bg-white/80 px-4 py-5 shadow-sm border border-white/60">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-[#E17AA4]">두 단어 조합</p>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-[#E17AA4]">두 단어 말하기</p>
                   <p className="mt-2 text-3xl font-bold text-slate-900">9회</p>
-                  <p className="text-xs text-slate-500">"더 우유" 등 자발 조합 증가</p>
+                  <p className="text-xs text-slate-500">“더 우유”처럼 문장으로 말했어요!</p>
                 </div>
                 <div className="rounded-2xl bg-white/80 px-4 py-5 shadow-sm border border-white/60">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-[#7EC4CF]">상호작용 유지</p>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-[#7EC4CF]">대화 이어가기</p>
                   <p className="mt-2 text-3xl font-bold text-slate-900">6분</p>
-                  <p className="text-xs text-slate-500">평균 대화 라운드 4.2회</p>
+                  <p className="text-xs text-slate-500">평균 4번씩 주고받았어요 💬</p>
                 </div>
               </div>
             </div>
@@ -162,8 +165,10 @@ export default function Growth() {
             <div className="rounded-[32px] border border-white/70 bg-white/90 p-6 sm:p-8 shadow-lg">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-[#A678E3]">Progress Focus</p>
-                  <p className="text-lg font-bold text-slate-900">언어 폭발기 대응 지표</p>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-[#A678E3]">
+                    성장 지표
+                  </p>
+                  <p className="text-lg font-bold text-slate-900">도담이의 말하기 여정</p>
                 </div>
                 <Sparkles className="text-[#E17AA4]" size={24} />
               </div>
@@ -191,17 +196,20 @@ export default function Growth() {
                 ))}
               </div>
               <p className="mt-6 text-xs leading-relaxed text-slate-500">
-                지표는 음성·제스처·시선 데이터를 통합 분석해 산출됩니다. 목표 대비 달성률이 90%를 넘으면 다음 단계 활동이 자동 추천돼요.
+                도담은 아이의 소리, 손짓, 시선을 함께 살펴서 성장 정도를 계산해요.
+                90% 이상 달성하면 다음 단계 놀이가 자동으로 추천돼요 🌟
               </p>
             </div>
           </div>
         </section>
 
+        {/* Focus Areas */}
         <section className="space-y-8">
           <div className="text-center space-y-3">
-            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">지금 주목해야 할 상호작용</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">지금 집중하면 좋아요</h2>
             <p className="mx-auto max-w-3xl text-sm sm:text-base leading-relaxed text-slate-600">
-              도담은 아이의 발화 직후 3초 안에 반응하도록 설계돼 있어요. 아래 요소를 강화하면 아이가 말 걸고 싶은 환경을 느끼게 됩니다.
+              도담은 아이가 말한 뒤 3초 안에 반응하도록 설계되어 있어요. 아래 내용을 챙겨주시면,
+              아이가 더 편안하게 먼저 말을 걸고 싶어해요 😊
             </p>
           </div>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
@@ -218,13 +226,14 @@ export default function Growth() {
           </div>
         </section>
 
+        {/* Conversation Diary + Parent Assist */}
         <section className="grid grid-cols-1 gap-6 lg:grid-cols-[1.1fr,0.9fr]">
           <div className="rounded-[32px] border border-[#F4D7E8] bg-white/90 p-6 sm:p-8 shadow-lg space-y-6">
             <div className="flex items-center gap-3">
               <Brain className="text-[#A678E3]" size={24} />
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wide text-[#A678E3]">Conversation Diary</p>
-                <h3 className="text-xl font-bold text-slate-900">오늘 기록된 대화 흐름</h3>
+                <h3 className="text-xl font-bold text-slate-900">오늘 나눈 따뜻한 대화들</h3>
               </div>
             </div>
             <div className="space-y-5">
@@ -239,7 +248,7 @@ export default function Growth() {
               ))}
             </div>
             <p className="text-xs leading-relaxed text-slate-500">
-              각 순간은 음성 톤, 아이의 시선, 손짓 데이터를 함께 기록해 부모님 대시보드에서 재생할 수 있습니다.
+              각 순간은 음성 톤, 아이의 시선, 손짓과 함께 기록되어 부모님 대시보드에서 다시 볼 수 있어요.
             </p>
           </div>
 
@@ -248,23 +257,21 @@ export default function Growth() {
               <HandHeart className="text-[#E17AA4]" size={24} />
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wide text-[#E17AA4]">Parent Assist</p>
-                <h3 className="text-xl font-bold text-slate-900">부모 코칭 알림</h3>
+                <h3 className="text-xl font-bold text-slate-900">부모님께 드리는 작은 힌트</h3>
               </div>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                모든 발화는 억양·제스처와 함께 기록되어 부모 대시보드에 실시간 반영됩니다.
-              </p>
             </div>
             <ul className="space-y-4 text-sm leading-relaxed text-slate-600">
-              <li>• 대화 후 5초 기다리기 알림이 저녁 7시에 전송됐어요.</li>
-              <li>• "오늘의 모델 문장" 음성 리플레이가 세 번 재생됐습니다.</li>
-              <li>• 보호자 공유 링크를 통해 조부모가 리포트를 열람했어요.</li>
+              <li>• 대화 후 5초 기다리기 알림이 저녁 7시에 전송되었어요.</li>
+              <li>• “오늘의 모델 문장” 음성 리플레이가 세 번 재생되었어요.</li>
+              <li>• 보호자 공유 링크를 통해 조부모님도 리포트를 함께 보셨어요.</li>
             </ul>
-            <div className="rounded-2xl border border-dashed border-[#E7D7FA] bg-[#FDF5FF] p-4 text-xs leading-relaxed text-slate-500">
-              ✨ 내일은 새로운 생활 단어 3개(컵, 숟가락, 의자)를 중심으로 질문을 던질 예정이에요.
+            <div className="rounded-2xl border border-dashed border-[#E7D7FA] bg-[#FDF5FF] p-4 text-xs leading-relaxed text-slate-600">
+              ✨ 내일은 생활 단어 3개(컵, 숟가락, 의자)를 중심으로 가볍게 질문해볼게요.
             </div>
           </div>
         </section>
 
+        {/* Stage Guides */}
         <section className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           {stageGuides.map((stage) => (
             <div
@@ -292,11 +299,12 @@ export default function Growth() {
           ))}
         </section>
 
+        {/* Recommendations */}
         <section className="space-y-8 rounded-[36px] border border-[#F4D7E8] bg-white/90 p-8 sm:p-10 shadow-xl">
           <div className="text-center space-y-3">
-            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">다음 주를 위한 발전 방향</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">다음 주를 위한 작은 발걸음</h2>
             <p className="mx-auto max-w-3xl text-sm sm:text-base leading-relaxed text-slate-600">
-              상단 지표를 바탕으로 추천되는 맞춤 전략입니다. 부모 참여, 놀이 환경, 어휘 확장을 균형 있게 설계했어요.
+              이번 주 성장 지표를 바탕으로 준비했어요. 부모님 참여, 놀이 환경, 어휘 확장을 고르게 담았어요.
             </p>
           </div>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
@@ -319,11 +327,10 @@ export default function Growth() {
             </button>
           </div>
           <p className="text-center text-xs text-slate-500">
-            💡 소아과, 언어치료 상담 시 리포트를 함께 보여주면 맞춤 조언을 더 빠르게 받을 수 있어요.
+            💡 소아과나 언어치료 상담 때 리포트를 함께 보여주시면, 더 꼭 맞는 조언을 빠르게 받으실 수 있어요.
           </p>
         </section>
       </div>
     </Layout>
   );
 }
-
