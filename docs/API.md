@@ -85,11 +85,6 @@
   - `highlights`: 주간 하이라이트 텍스트
   - `ageComparison`: 월령 기준 비교 데이터
 
-### GET /api/growth/export
-- **쿼리 파라미터**:
-  - `format`: "pdf"
-- **응답 데이터**: PDF 파일
-
 ## 6. 팁 & 코칭 API
 
 ### GET /api/tips
