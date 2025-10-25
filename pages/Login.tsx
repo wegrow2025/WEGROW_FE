@@ -156,7 +156,7 @@ export default function Login() {
                 className="w-full rounded-full bg-[#E17AA4] text-sm font-semibold text-white transition hover:bg-[#d0648f]"
                 disabled={loading}
               >
-                {loading ? "처리 중..." : "We:Grow 시작하기"}
+                {loading ? "처리 중..." : "도담 시작하기"}
               </Button>
             </form>
 
