@@ -4,7 +4,6 @@ const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL ?? "http://loca
 export function getAuthHeaders(): HeadersInit {
     const token = localStorage.getItem('token');
     return {
-        'Content-Type': 'application/json',
         ...(token && { 'Authorization': `Bearer ${token}` }),
     };
 }
@@ -16,12 +15,20 @@ export async function authenticatedFetch(
 ): Promise<Response> {
     const fullUrl = url.startsWith('http') ? url : `${API_BASE_URL}${url}`;
 
+    // FormData인 경우 Content-Type을 설정하지 않음 (브라우저가 자동으로 boundary 설정)
+    const headers: HeadersInit = {
+        ...getAuthHeaders(),
+        ...options.headers,
+    };
+
+    // body가 FormData가 아닌 경우에만 Content-Type을 application/json으로 설정
+    if (!(options.body instanceof FormData)) {
+        headers['Content-Type'] = 'application/json';
+    }
+
     const response = await fetch(fullUrl, {
         ...options,
-        headers: {
-            ...getAuthHeaders(),
-            ...options.headers,
-        },
+        headers,
     });
 
     // 401 에러 시 토큰 제거 및 로그인 페이지로 리다이렉트

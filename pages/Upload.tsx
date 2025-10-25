@@ -85,18 +85,34 @@ export default function Upload() {
 
     const file = files[0];
 
+    // 파일 크기 체크 (10MB)
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxSize) {
+      setUploadError('파일 크기가 너무 큽니다. 10MB 이하의 파일을 업로드해주세요.');
+      return;
+    }
+
     resetStatusMessages();
     setIsUploading(true);
 
     try {
       const formData = new FormData();
-      formData.append("audioFile", file);
-      formData.append("source", "parent");
+      formData.append("audio_file", file);
 
       const response = await authenticatedFetch('/api/audio/upload', {
         method: 'POST',
         body: formData
       });
+
+      // 413 에러 처리 (파일 크기 초과)
+      if (response.status === 413) {
+        throw new Error('파일 크기가 너무 큽니다. 10MB 이하의 파일을 업로드해주세요.');
+      }
+
+      // 400 에러 처리 (지원하지 않는 형식)
+      if (response.status === 400) {
+        throw new Error('지원하지 않는 오디오 형식입니다. MP3, WAV, M4A 형식만 지원됩니다.');
+      }
 
       if (!response.ok) {
         throw new Error('파일 업로드에 실패했습니다.');
@@ -105,7 +121,12 @@ export default function Upload() {
       const data = await response.json();
       console.log('Upload successful:', data);
 
-      setUploadMessage(`${file.name} 파일이 성공적으로 업로드되었습니다.`);
+      if (data.success) {
+        setUploadMessage(`파일 업로드 완료! 샘플 ID: ${data.sample_id}. ${data.status === '분석 중' ? data.estimated_analysis_time : ''}`);
+      } else {
+        setUploadError('파일 업로드에 실패했습니다.');
+      }
+
       fileInputRef.current && (fileInputRef.current.value = "");
 
       // Refresh samples data
@@ -226,7 +247,7 @@ export default function Upload() {
                   </div>
                   <div className="space-y-2">
                     <h3 className="text-xl font-semibold text-slate-900">음성 파일을 드래그하거나 클릭해서 선택하세요</h3>
-                    <p className="text-sm text-slate-500">지원 형식: MP3, WAV, M4A (최대 30초)</p>
+                    <p className="text-sm text-slate-500">지원 형식: MP3, WAV, M4A (최대 10MB)</p>
                   </div>
                   <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
                     <button
@@ -297,8 +318,8 @@ export default function Upload() {
                     </div>
                     <span
                       className={`inline-flex items-center gap-1 self-start rounded-full px-3 py-1 text-xs font-semibold ${sample.status === "분석 완료"
-                          ? "bg-[#E8DAFA] text-[#6E3EC1]"
-                          : "bg-[#FFE5F1] text-[#C9367C]"
+                        ? "bg-[#E8DAFA] text-[#6E3EC1]"
+                        : "bg-[#FFE5F1] text-[#C9367C]"
                         }`}
                     >
                       {sample.status === "분석 완료" && <CheckCircle size={14} />}

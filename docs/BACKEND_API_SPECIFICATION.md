@@ -187,20 +187,21 @@
 
 ### POST /api/audio/upload
 **요청 데이터 (multipart/form-data):**
-- `audioFile`: 음성 파일 (MP3, WAV, M4A)
-- `duration`: 녹음 시간 (초)
-- `source`: "parent" | "robot"
-- `notes`: 메모 (선택사항)
+- `audio_file`: 음성 파일 (MP3, WAV, M4A) - 필수
 
 **응답 데이터:**
 ```json
 {
   "success": true,
-  "sampleId": "sample_123",
+  "sample_id": "sample_123",
   "status": "분석 중",
-  "estimatedAnalysisTime": "2-3분"
+  "estimated_analysis_time": "2-3분"
 }
 ```
+
+**에러 응답:**
+- `413`: 파일 크기가 너무 큼 (10MB 초과)
+- `400`: 지원하지 않는 오디오 형식
 
 ### GET /api/audio/samples
 **응답 데이터:**
