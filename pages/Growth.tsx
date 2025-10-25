@@ -187,32 +187,7 @@ export default function Growth() {
 
   return (
     <Layout showNav={true}>
-      <div className="max-w-6xl mx-auto px-4 sm:px-8 py-12 space-y-6">
-        <div className="flex justify-end">
-          <button
-            type="button"
-            onClick={handleDownloadPdf}
-            disabled={isGeneratingPdf}
-            className="inline-flex items-center gap-2 rounded-full bg-[#A678E3] px-5 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-[#8f5cd1] focus:outline-none focus:ring-2 focus:ring-[#A678E3]/40 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-[#CDB7F2]"
-            aria-live="polite"
-            aria-busy={isGeneratingPdf}
-          >
-            {isGeneratingPdf ? (
-              <>
-                <span className="inline-flex h-4 w-4 items-center justify-center">
-                  <span className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                </span>
-                <span>PDF 생성 중...</span>
-              </>
-            ) : (
-              <>
-                <Download size={16} />
-                <span>PDF로 저장하기</span>
-              </>
-            )}
-          </button>
-        </div>
-
+      <div className="max-w-6xl mx-auto px-4 sm:px-8 py-4 space-y-6">
         <div className="space-y-16">
           {/* Hero / Snapshot */}
           <section className="relative overflow-hidden rounded-[40px] bg-gradient-to-br from-[#FDE4EC] via-[#F4E5FB] to-[#E0F1FF] p-8 sm:p-12 shadow-xl">
@@ -392,39 +367,31 @@ export default function Growth() {
           <p className="text-center text-xs text-slate-500">
             💡 소아과나 언어치료 상담 때 리포트를 함께 보여주시면, 더 꼭 맞는 조언을 빠르게 받으실 수 있어요.
           </p>
-          <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
-            <button
-              type="button"
-              onClick={handleDownloadPdf}
-              disabled={isGeneratingPdf}
-              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 rounded-full bg-[#E17AA4] px-6 py-3 font-semibold text-white shadow-sm transition hover:bg-[#d0648f] focus:outline-none focus:ring-2 focus:ring-[#E17AA4]/40 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-[#f0a6c6]"
-              aria-live="polite"
-              aria-busy={isGeneratingPdf}
-            >
-              {isGeneratingPdf ? (
-                <>
-                  <span className="inline-flex h-4 w-4 items-center justify-center">
-                    <span className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                  </span>
-                  <span>PDF 생성 중...</span>
-                </>
-              ) : (
-                <>
-                  <Download size={18} />
-                  <span>리포트 PDF 다운로드</span>
-                </>
-              )}
-            </button>
-            <button
-              type="button"
-              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 rounded-full border-2 border-[#A678E3] px-6 py-3 font-semibold text-[#A678E3] transition hover:bg-[#FDF5FF] focus:outline-none focus:ring-2 focus:ring-[#A678E3]/30 focus:ring-offset-2"
-            >
-              <Share2 size={18} />
-              보호자와 공유하기
-            </button>
-          </div>
-          
         </section>
+                  <div className="flex justify-center py-12">
+          <button
+            type="button"
+            onClick={handleDownloadPdf}
+            disabled={isGeneratingPdf}
+            className="inline-flex items-center gap-2 rounded-full bg-[#A678E3] px-5 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-[#8f5cd1] focus:outline-none focus:ring-2 focus:ring-[#A678E3]/40 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-[#CDB7F2]"
+            aria-live="polite"
+            aria-busy={isGeneratingPdf}
+          >
+            {isGeneratingPdf ? (
+              <>
+                <span className="inline-flex h-4 w-4 items-center justify-center">
+                  <span className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                </span>
+                <span>PDF 생성 중...</span>
+              </>
+            ) : (
+              <>
+                <Download size={16} />
+                <span>PDF로 저장하기</span>
+              </>
+            )}
+          </button>
+        </div>
         </div>
       </div>
     </Layout>
