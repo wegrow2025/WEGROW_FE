@@ -1,229 +1,329 @@
 import { Layout } from "@/components/Layout";
 import {
-  TrendingUp,
+  Sparkles,
+  MessageCircleHeart,
+  BookOpen,
   Download,
   Share2,
-  MessageCircleHeart,
-  Sparkles,
-  Baby,
   Brain,
-  BookOpen,
+  HandHeart,
+  Play,
 } from "lucide-react";
+
+const progressMetrics = [
+  {
+    label: "활용 어휘",
+    value: "42 단어",
+    helper: "목표 50 단어",
+    trend: "지난주 +6",
+    progress: 84,
+    color: "#E17AA4",
+  },
+  {
+    label: "두 단어 조합",
+    value: "1일 9회",
+    helper: "자발 표현",
+    trend: "+3회",
+    progress: 72,
+    color: "#A678E3",
+  },
+  {
+    label: "제스처 이해",
+    value: "93%",
+    helper: "응답 정확도",
+    trend: "+5%p",
+    progress: 93,
+    color: "#7EC4CF",
+  },
+];
+
+const focusAreas = [
+  {
+    icon: <MessageCircleHeart className="text-[#E17AA4]" size={26} />,
+    title: "상호작용 신호 포착",
+    description:
+      "아이가 말 대신 손짓·표정으로 보여주는 의도를 실시간으로 인식하고 부모에게 자막처럼 알려줘요.",
+  },
+  {
+    icon: <BookOpen className="text-[#A678E3]" size={26} />,
+    title: "모델링 문장 제시",
+    description:
+      "아이 발화 직후 맞장구 → 재진술 → 확장 문장 순서로 다음 표현을 자연스럽게 이어가요.",
+  },
+  {
+    icon: <Sparkles className="text-[#F08AA4]" size={26} />,
+    title: "놀이형 언어 자극",
+    description:
+      "소리 흉내, 역할 놀이, 손 인형 스토리 등 18~24개월에 적합한 언어 게임을 큐레이션합니다.",
+  },
+];
+
+const dailyMoments = [
+  {
+    time: "아침 식사",
+    script: '아이: "멍멍" → 도담: "멍멍이가 밥 먹을까? 손가락으로 가리켜줄래?"',
+    focus: "소리와 제스처 연결",
+  },
+  {
+    time: "낮 산책",
+    script: '아이: "더 물" → 도담: "물 더 마시고 싶구나. 컵을 잡아볼까?"',
+    focus: "두 단어 조합 확장",
+  },
+  {
+    time: "잠자리",
+    script: '아이: "책 읽어" → 도담: "어떤 책이 좋아? 고양이 이야기 골라볼까?"',
+    focus: "선택 질문 연습",
+  },
+];
+
+const stageGuides = [
+  {
+    stage: "18개월 집중 포인트",
+    color: "#E17AA4",
+    summary: "10~15개 단어와 의태어에 풍부한 반응",
+    actions: [
+      "일상 사물에 이름 붙이기 + 소리 흉내",
+      "손짓, 끄덕임 등 비언어 반응을 즉시 말로 옮겨주기",
+      '아이 발화 후 "맞아" → "그게 뭐지?" 식의 짧은 질문으로 이어가기',
+    ],
+    example: '오늘의 모델: "토토" → "토끼구나! 토끼는 폴짝 뛰지?"',
+  },
+  {
+    stage: "24개월 집중 포인트",
+    color: "#A678E3",
+    summary: "50+ 단어, 두 단어 조합의 폭넓은 활용",
+    actions: [
+      "선택형 질문으로 대답을 유도하고 기다리기",
+      "아이 문장을 받아 더 긴 문장으로 재구성하기",
+      "역할 놀이 속 감정 단어(기뻐, 속상해) 소개",
+    ],
+    example: '오늘의 모델: "더 우유" → "우유 더 마시고 싶구나. 컵을 두 손으로 잡아볼까?"',
+  },
+];
+
+const recommendations = [
+  {
+    title: "대화 확장 루틴",
+    detail:
+      "하루 3회, 아이 발화 후 5초 기다리고 확장 문장을 들려주는 루틴을 제안해요.",
+    tip: "타이머 알림으로 부모 참여 시간대를 고정하면 아이가 예측 가능성을 느낍니다.",
+  },
+  {
+    title: "환경 단어 탐색",
+    detail:
+      "집 안 물건에 단어 라벨을 붙이고, 로봇이 라벨을 읽어주면 아이가 즉시 손짓으로 반응해요.",
+    tip: "주간 목표 단어 6개를 정해 반복 노출하세요.",
+  },
+  {
+    title: "역할 놀이 확장",
+    detail:
+      "잠자리 전 5분 동안 인형과 함께 감정 표현과 선택 질문을 주고받도록 유도합니다.",
+    tip: "“무슨 느낌이야?” 같은 감정 질문을 포함하세요.",
+  },
+];
 
 export default function Growth() {
   return (
     <Layout showNav={true}>
       <div className="max-w-6xl mx-auto px-4 sm:px-8 py-12 space-y-16">
-        <section className="grid grid-cols-1 lg:grid-cols-[1.2fr,1fr] gap-10 items-center">
-          <div className="space-y-6">
-            <span className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-white/80 border border-[#F4D7E8] text-sm text-[#E17AA4] font-semibold shadow-sm">
-              18~24개월 언어 성장 여정
-            </span>
-            <h1 className="text-3xl sm:text-4xl font-extrabold leading-snug">
-              대화로 키우는 우리 아이의 첫 언어, <span className="text-[#E17AA4]">성장 리포트</span>
-            </h1>
-            <p className="text-base sm:text-lg text-slate-700 leading-relaxed">
-              도담은 아이의 옹알이부터 두 단어 조합까지 모든 시도를 귀 기울여 듣고 즉각 반응합니다. 18개월에는 10~15개의 단어를, 24개월에는 50개 이상의 단어를 목표로 삼으며 아이가 표현한 말과 몸짓을 의미 있게 받아주는 "대화형 말벗"으로 동행해요.
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="rounded-3xl border border-[#F4D7E8] bg-white/80 p-5 space-y-3 shadow-sm">
-                <div className="flex items-center gap-3">
-                  <MessageCircleHeart className="text-[#E17AA4]" size={24} />
-                  <span className="text-sm font-semibold text-slate-600">이번 주 대화 하이라이트</span>
+        <section className="relative overflow-hidden rounded-[40px] bg-gradient-to-br from-[#FDE4EC] via-[#F4E5FB] to-[#E0F1FF] p-8 sm:p-12 shadow-xl">
+          <div className="absolute -top-16 -left-10 h-44 w-44 rounded-full bg-white/40 blur-3xl" />
+          <div className="absolute -bottom-12 -right-8 h-48 w-48 rounded-full bg-[#E7D7FA]/60 blur-3xl" />
+          <div className="relative grid gap-10 lg:grid-cols-[1.1fr,1fr] items-start">
+            <div className="space-y-6">
+              <span className="inline-flex items-center gap-2 rounded-full bg-white/70 px-4 py-1 text-sm font-semibold text-[#E17AA4] shadow-sm">
+                이번 주 성장 스냅샷
+              </span>
+              <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 leading-tight">
+                대화로 확인하는 18~24개월 언어 성장
+              </h1>
+              <p className="text-base sm:text-lg leading-relaxed text-slate-700">
+                도담은 아이의 옹알이, 두 단어 조합, 손짓까지 빠짐없이 포착해 즉각 반응합니다. 시각적으로 정리된 상단 지표로 지금 어디까지 성장했는지 한눈에 확인하세요.
+              </p>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                <div className="rounded-2xl bg-white/80 px-4 py-5 shadow-sm border border-white/60">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-[#A678E3]">주요 어휘</p>
+                  <p className="mt-2 text-3xl font-bold text-slate-900">42</p>
+                  <p className="text-xs text-slate-500">지난달 대비 +18%</p>
                 </div>
-                <p className="text-sm text-slate-700 leading-relaxed">
-                  "바바"라고 말한 순간 도담이 "바나나? 노란색 좋아?"라고 확장 답변하며 더 긴 문장을 유도했어요.
-                </p>
-                <div className="flex items-center gap-6 text-xs text-slate-500">
-                  <span>의미 있는 시도 <strong className="text-[#E17AA4]">+8%</strong></span>
-                  <span>모델링 문장 <strong className="text-[#A678E3]">14회</strong></span>
+                <div className="rounded-2xl bg-white/80 px-4 py-5 shadow-sm border border-white/60">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-[#E17AA4]">두 단어 조합</p>
+                  <p className="mt-2 text-3xl font-bold text-slate-900">9회</p>
+                  <p className="text-xs text-slate-500">"더 우유" 등 자발 조합 증가</p>
                 </div>
-              </div>
-              <div className="rounded-3xl border border-[#E7D7FA] bg-gradient-to-br from-[#FDE4EC]/70 to-[#E7D7FA]/70 p-5 space-y-4 shadow-sm">
-                <div className="flex items-center gap-3">
-                  <TrendingUp className="text-[#A678E3]" size={24} />
-                  <span className="text-sm font-semibold text-slate-600">주간 성장 수치</span>
-                </div>
-                <div className="space-y-2 text-sm text-slate-700">
-                  <p>• 새로 이해한 단어 <span className="font-semibold text-[#E17AA4]">12개</span></p>
-                  <p>• 손짓-말 연계 반응 <span className="font-semibold text-[#A678E3]">92%</span></p>
-                  <p>• 부모 피드백 스크립트 <span className="font-semibold text-slate-900">6건</span></p>
+                <div className="rounded-2xl bg-white/80 px-4 py-5 shadow-sm border border-white/60">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-[#7EC4CF]">상호작용 유지</p>
+                  <p className="mt-2 text-3xl font-bold text-slate-900">6분</p>
+                  <p className="text-xs text-slate-500">평균 대화 라운드 4.2회</p>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div className="relative">
-            <div className="absolute -top-10 -right-6 w-40 h-40 bg-[#FDE4EC] rounded-full blur-3xl opacity-60" />
-            <div className="bg-white/90 border border-[#F4D7E8] rounded-[32px] p-8 space-y-6 shadow-xl relative">
-              <div className="flex items-center gap-3">
-                <div className="w-14 h-14 rounded-full bg-[#F7B5C3] flex items-center justify-center text-3xl">🐭</div>
+            <div className="rounded-[32px] border border-white/70 bg-white/90 p-6 sm:p-8 shadow-lg">
+              <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs font-semibold text-[#A678E3] uppercase tracking-wide">도담 conversation buddy</p>
-                  <p className="text-lg font-bold text-slate-900">맞춤 반응 로그</p>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-[#A678E3]">Progress Focus</p>
+                  <p className="text-lg font-bold text-slate-900">언어 폭발기 대응 지표</p>
                 </div>
+                <Sparkles className="text-[#E17AA4]" size={24} />
               </div>
-              <div className="space-y-4 text-sm text-slate-700">
-                <div className="rounded-2xl bg-[#FFF7FB] border border-[#F4D7E8] p-4 space-y-1">
-                  <p className="font-semibold text-[#E17AA4]">18개월 Morning Talk</p>
-                  <p>아이가 "멍멍"이라고 말해요 → 도담: "멍멍이 어디 있어? 이리 와볼까?"</p>
-                </div>
-                <div className="rounded-2xl bg-[#FDF5FF] border border-[#E7D7FA] p-4 space-y-1">
-                  <p className="font-semibold text-[#A678E3]">24개월 Evening Story</p>
-                  <p>아이가 "더 우유"라고 말해요 → 도담: "우유 더 마시고 싶구나. 컵을 잡아볼까?"</p>
-                </div>
+              <div className="mt-6 space-y-5">
+                {progressMetrics.map((metric) => (
+                  <div key={metric.label} className="space-y-2">
+                    <div className="flex items-center justify-between text-sm text-slate-500">
+                      <span className="font-semibold text-slate-700">{metric.label}</span>
+                      <span>{metric.helper}</span>
+                    </div>
+                    <div className="flex items-end justify-between">
+                      <span className="text-xl font-bold text-slate-900">{metric.value}</span>
+                      <span className="text-xs text-slate-500">{metric.trend}</span>
+                    </div>
+                    <div className="h-2 rounded-full bg-slate-100/80">
+                      <div
+                        className="h-2 rounded-full"
+                        style={{
+                          width: `${metric.progress}%`,
+                          backgroundColor: metric.color,
+                        }}
+                      />
+                    </div>
+                  </div>
+                ))}
               </div>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                모든 발화는 억양·제스처와 함께 기록되어 부모 대시보드에 실시간 반영됩니다.
+              <p className="mt-6 text-xs leading-relaxed text-slate-500">
+                지표는 음성·제스처·시선 데이터를 통합 분석해 산출됩니다. 목표 대비 달성률이 90%를 넘으면 다음 단계 활동이 자동 추천돼요.
               </p>
             </div>
           </div>
         </section>
 
-        <section className="bg-white/80 border border-[#F4D7E8] rounded-[32px] p-8 sm:p-10 shadow-xl space-y-10">
-          <div className="text-center space-y-4">
-            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">아이 발달에 맞춘 네 가지 핵심 기능</h2>
-            <p className="text-slate-600 text-sm sm:text-base max-w-3xl mx-auto">
-              도담은 대화형 말벗으로 아이의 시도를 기다려주고, 의미를 찾아주고, 더 나은 표현을 제안합니다. 18~24개월 영유아의 언어 폭발기를 지지하기 위해 설계된 기능들을 확인하세요.
+        <section className="space-y-8">
+          <div className="text-center space-y-3">
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">지금 주목해야 할 상호작용</h2>
+            <p className="mx-auto max-w-3xl text-sm sm:text-base leading-relaxed text-slate-600">
+              도담은 아이의 발화 직후 3초 안에 반응하도록 설계돼 있어요. 아래 요소를 강화하면 아이가 말 걸고 싶은 환경을 느끼게 됩니다.
             </p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              {
-                icon: <MessageCircleHeart className="text-[#E17AA4]" size={28} />,
-                title: "Conversational Companion",
-                desc: "아이가 내뱉은 옹알이나 한 단어도 의미 있는 대화로 확장해 주는 말벗 모드입니다.",
-              },
-              {
-                icon: <Brain className="text-[#A678E3]" size={28} />,
-                title: "Adaptive Learning",
-                desc: "일별·주별 데이터를 분석하여 질문 난이도와 모델링 문장을 단계적으로 조정합니다.",
-              },
-              {
-                icon: <Sparkles className="text-[#E17AA4]" size={28} />,
-                title: "Educational Stimuli",
-                desc: "사운드 모방, 손짓 놀이, 역할극 등 언어 자극 활동을 게임처럼 제안합니다.",
-              },
-              {
-                icon: <Baby className="text-[#F08AA4]" size={28} />,
-                title: "Physical Design & Safety",
-                desc: "아이 눈높이에 맞춘 라운드 디자인과 인증 소재로 안심하고 사용할 수 있어요.",
-              },
-            ].map((item) => (
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+            {focusAreas.map((item) => (
               <div
                 key={item.title}
-                className="rounded-3xl border border-[#F4D7E8] bg-white/90 p-6 space-y-3 shadow-sm hover:-translate-y-1 transition"
+                className="rounded-3xl border border-[#F4D7E8] bg-white/90 p-6 shadow-sm transition hover:-translate-y-1"
               >
-                <div>{item.icon}</div>
-                <h3 className="font-semibold text-lg text-slate-900">{item.title}</h3>
-                <p className="text-sm text-slate-600 leading-relaxed">{item.desc}</p>
+                <div className="mb-4 inline-flex rounded-full bg-[#FDE4EC]/80 p-3">{item.icon}</div>
+                <h3 className="text-lg font-semibold text-slate-900">{item.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-slate-600">{item.description}</p>
               </div>
             ))}
           </div>
         </section>
 
-        <section className="space-y-10">
-          <div className="text-center space-y-3">
-            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">월령별 대화 스크립트 변화</h2>
-            <p className="text-slate-600 text-sm sm:text-base max-w-2xl mx-auto">
-              18개월에는 사물 이름과 제스처에 초점을 맞추고, 24개월에는 두 단어 이상의 문장을 유도합니다. 단계별 가이드를 확인하세요.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="rounded-[28px] border border-[#F4D7E8] bg-white/90 p-8 space-y-4 shadow-md">
-              <div className="flex items-center gap-3 text-[#E17AA4]">
-                <BookOpen size={24} />
-                <span className="text-sm font-semibold uppercase tracking-wide">18개월 Focus</span>
-              </div>
-              <h3 className="text-xl font-bold text-slate-900">10~15개 단어, 명칭 익히기</h3>
-              <ul className="space-y-3 text-sm text-slate-600 leading-relaxed">
-                <li>• 사물 이름과 소리 흉내를 함께 제시하여 이해도를 높입니다.</li>
-                <li>• "공 줘"와 같은 간단한 지시를 손짓과 함께 안내합니다.</li>
-                <li>• 아이가 소리를 내면 즉시 모범 단어로 다시 들려주며 반복 연습합니다.</li>
-              </ul>
-              <div className="rounded-2xl bg-[#FFF7FB] border border-[#F4D7E8] p-4 text-xs text-slate-500">
-                오늘의 예시: "멍멍" → "멍멍이 왈왈! 부드럽지? 손으로 쓰다듬어볼까?"
+        <section className="grid grid-cols-1 gap-6 lg:grid-cols-[1.1fr,0.9fr]">
+          <div className="rounded-[32px] border border-[#F4D7E8] bg-white/90 p-6 sm:p-8 shadow-lg space-y-6">
+            <div className="flex items-center gap-3">
+              <Brain className="text-[#A678E3]" size={24} />
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-[#A678E3]">Conversation Diary</p>
+                <h3 className="text-xl font-bold text-slate-900">오늘 기록된 대화 흐름</h3>
               </div>
             </div>
-            <div className="rounded-[28px] border border-[#E7D7FA] bg-white/90 p-8 space-y-4 shadow-md">
-              <div className="flex items-center gap-3 text-[#A678E3]">
-                <BookOpen size={24} />
-                <span className="text-sm font-semibold uppercase tracking-wide">24개월 Focus</span>
+            <div className="space-y-5">
+              {dailyMoments.map((moment) => (
+                <div key={moment.time} className="rounded-2xl border border-[#F4D7E8] bg-[#FFF7FB] p-4">
+                  <div className="flex items-center justify-between text-xs font-semibold text-[#E17AA4]">
+                    <span>{moment.time}</span>
+                    <span>{moment.focus}</span>
+                  </div>
+                  <p className="mt-2 text-sm leading-relaxed text-slate-700">{moment.script}</p>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs leading-relaxed text-slate-500">
+              각 순간은 음성 톤, 아이의 시선, 손짓 데이터를 함께 기록해 부모님 대시보드에서 재생할 수 있습니다.
+            </p>
+          </div>
+
+          <div className="rounded-[32px] border border-[#E7D7FA] bg-white/90 p-6 sm:p-8 shadow-lg space-y-6">
+            <div className="flex items-center gap-3">
+              <HandHeart className="text-[#E17AA4]" size={24} />
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-[#E17AA4]">Parent Assist</p>
+                <h3 className="text-xl font-bold text-slate-900">부모 코칭 알림</h3>
               </div>
-              <h3 className="text-xl font-bold text-slate-900">50+ 단어, 두 단어 조합 확장</h3>
-              <ul className="space-y-3 text-sm text-slate-600 leading-relaxed">
-                <li>• "더 우유" 같은 표현을 받아 확장 문장("우유 더 마실래?")으로 모델링합니다.</li>
-                <li>• 간단한 의문형 질문으로 아이의 선택과 대답을 유도합니다.</li>
-                <li>• 비언어 신호(고개 끄덕임, 손가락 가리킴)를 말과 연결하여 설명해 줍니다.</li>
-              </ul>
-              <div className="rounded-2xl bg-[#FDF5FF] border border-[#E7D7FA] p-4 text-xs text-slate-500">
-                오늘의 예시: "고양이?" → "그래, 고양이는 야옹야옹 해. 쓰다듬어볼래?"
-              </div>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                모든 발화는 억양·제스처와 함께 기록되어 부모 대시보드에 실시간 반영됩니다.
+              </p>
+            </div>
+            <ul className="space-y-4 text-sm leading-relaxed text-slate-600">
+              <li>• 대화 후 5초 기다리기 알림이 저녁 7시에 전송됐어요.</li>
+              <li>• "오늘의 모델 문장" 음성 리플레이가 세 번 재생됐습니다.</li>
+              <li>• 보호자 공유 링크를 통해 조부모가 리포트를 열람했어요.</li>
+            </ul>
+            <div className="rounded-2xl border border-dashed border-[#E7D7FA] bg-[#FDF5FF] p-4 text-xs leading-relaxed text-slate-500">
+              ✨ 내일은 새로운 생활 단어 3개(컵, 숟가락, 의자)를 중심으로 질문을 던질 예정이에요.
             </div>
           </div>
         </section>
 
-        <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {[
-            {
-              title: "반응을 기다려요",
-              desc: "도담은 먼저 질문을 던진 뒤, 아이가 말이나 제스처로 반응할 때까지 충분히 기다립니다.",
-            },
-            {
-              title: "의미를 해석해요",
-              desc: '짧은 소리라도 상황과 표정을 분석해 “무슨 말을 하고 싶은지” 부모에게 요약해 알려줘요.',
-            },
-            {
-              title: "표현을 확장해요",
-              desc: "맞장구-재진술-확장 문장을 통해 다음 단계의 언어를 자연스럽게 제시합니다.",
-            },
-          ].map((item) => (
+        <section className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          {stageGuides.map((stage) => (
             <div
-              key={item.title}
-              className="rounded-[28px] border border-[#F4D7E8] bg-white/90 p-7 space-y-3 shadow-md"
+              key={stage.stage}
+              className="rounded-[32px] border border-[#F4D7E8] bg-white/90 p-6 sm:p-8 shadow-lg space-y-5"
             >
-              <h3 className="text-lg font-semibold text-slate-900">{item.title}</h3>
-              <p className="text-sm text-slate-600 leading-relaxed">{item.desc}</p>
+              <div className="flex items-center gap-3">
+                <Play style={{ color: stage.color }} size={22} />
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: stage.color }}>
+                    {stage.stage}
+                  </p>
+                  <h3 className="text-lg font-bold text-slate-900">{stage.summary}</h3>
+                </div>
+              </div>
+              <ul className="space-y-3 text-sm leading-relaxed text-slate-600">
+                {stage.actions.map((action) => (
+                  <li key={action}>• {action}</li>
+                ))}
+              </ul>
+              <div className="rounded-2xl border border-dashed border-[#F4D7E8] bg-[#FFF7FB] p-4 text-xs font-medium text-slate-600">
+                {stage.example}
+              </div>
             </div>
           ))}
         </section>
 
-        <section className="bg-white/80 border border-[#F4D7E8] rounded-[32px] p-8 sm:p-10 shadow-xl space-y-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="rounded-3xl border border-[#F4D7E8] bg-[#FFF7FB] p-6 space-y-2">
-              <p className="text-sm font-semibold text-[#E17AA4]">언어 시도</p>
-              <p className="text-3xl font-bold text-slate-900">127회</p>
-              <p className="text-xs text-slate-500">지난주 대비 <span className="text-[#E17AA4] font-semibold">+11%</span></p>
-            </div>
-            <div className="rounded-3xl border border-[#E7D7FA] bg-[#FDF5FF] p-6 space-y-2">
-              <p className="text-sm font-semibold text-[#A678E3]">새로운 어휘</p>
-              <p className="text-3xl font-bold text-slate-900">18개</p>
-              <p className="text-xs text-slate-500">맥락 속 반복 노출로 학습</p>
-            </div>
-            <div className="rounded-3xl border border-[#F7E2C7] bg-[#FFF9F4] p-6 space-y-2">
-              <p className="text-sm font-semibold text-[#E9A05A]">부모 코칭</p>
-              <p className="text-3xl font-bold text-slate-900">9개</p>
-              <p className="text-xs text-slate-500">일상 속 대화 팁 알림</p>
-            </div>
+        <section className="space-y-8 rounded-[36px] border border-[#F4D7E8] bg-white/90 p-8 sm:p-10 shadow-xl">
+          <div className="text-center space-y-3">
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">다음 주를 위한 발전 방향</h2>
+            <p className="mx-auto max-w-3xl text-sm sm:text-base leading-relaxed text-slate-600">
+              상단 지표를 바탕으로 추천되는 맞춤 전략입니다. 부모 참여, 놀이 환경, 어휘 확장을 균형 있게 설계했어요.
+            </p>
           </div>
-          <p className="text-sm text-slate-600 leading-relaxed text-center max-w-3xl mx-auto">
-            데이터는 음성, 억양, 손짓 등 멀티모달 입력을 기반으로 분석되며, 아이가 다음 단계로 도약할 수 있도록 새 단어와 질문을 추천합니다. 부모님은 리포트를 통해 오늘의 대화 포인트와 다음 활동을 즉시 확인할 수 있어요.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 sm:justify-center">
-            <button className="flex-1 sm:flex-none px-6 py-3 rounded-full bg-[#E17AA4] text-white font-semibold hover:bg-[#d0648f] transition flex items-center justify-center gap-2 shadow-sm">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+            {recommendations.map((item) => (
+              <div key={item.title} className="rounded-3xl border border-[#F4D7E8] bg-[#FFF7FB] p-6 shadow-sm space-y-3">
+                <h3 className="text-lg font-semibold text-slate-900">{item.title}</h3>
+                <p className="text-sm leading-relaxed text-slate-600">{item.detail}</p>
+                <p className="text-xs font-medium text-[#A678E3]">{item.tip}</p>
+              </div>
+            ))}
+          </div>
+          <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+            <button className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 rounded-full bg-[#E17AA4] px-6 py-3 font-semibold text-white shadow-sm transition hover:bg-[#d0648f]">
               <Download size={18} />
               리포트 PDF 다운로드
             </button>
-            <button className="flex-1 sm:flex-none px-6 py-3 rounded-full border-2 border-[#A678E3] text-[#A678E3] font-semibold hover:bg-[#FDF5FF] transition flex items-center justify-center gap-2">
+            <button className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 rounded-full border-2 border-[#A678E3] px-6 py-3 font-semibold text-[#A678E3] transition hover:bg-[#FDF5FF]">
               <Share2 size={18} />
               보호자와 공유하기
             </button>
           </div>
-          <p className="text-xs text-slate-500 text-center">
-            💡 소아과, 언어치료 상담 시 리포트를 함께 보여주면 더욱 정확한 상담이 가능해요.
+          <p className="text-center text-xs text-slate-500">
+            💡 소아과, 언어치료 상담 시 리포트를 함께 보여주면 맞춤 조언을 더 빠르게 받을 수 있어요.
           </p>
         </section>
       </div>
     </Layout>
   );
 }
+
