@@ -51,9 +51,9 @@ export default function Landing() {
               >
                 무료로 시작하기 <ArrowRight size={20} />
               </Link>
-              <button className="px-8 py-3 rounded-full border-2 border-[#E17AA4] text-[#E17AA4] font-semibold hover:bg-[#FDF2F7] transition flex items-center justify-center gap-2">
+              {/* <button className="px-8 py-3 rounded-full border-2 border-[#E17AA4] text-[#E17AA4] font-semibold hover:bg-[#FDF2F7] transition flex items-center justify-center gap-2">
                 데모 보기 <Play size={20} />
-              </button>
+              </button> */}
             </div>
           </div>
           <div className="bg-white rounded-3xl border border-[#F4D7E8] shadow-xl p-8 relative overflow-hidden">
