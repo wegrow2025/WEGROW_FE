@@ -46,19 +46,22 @@ export default function Register() {
     setLoading(true);
 
     try {
+      const data =  JSON.stringify({
+          'email' : email.trim(),
+          'password': pw,
+          'childAge': parsedChildAge,
+          'name': name.trim(),
+        });
+
+      console.log(data);
       const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
 
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include",
-        body: JSON.stringify({
-          email,
-          password: pw,
-          childAge: parsedChildAge,
-          name: name.trim(),
-        }),
+        // credentials: "include",
+        body: data,
       });
 
       const payload = await response.json().catch(() => null);

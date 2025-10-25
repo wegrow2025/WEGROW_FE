@@ -15,7 +15,7 @@ export default function Timeline() {
                 <Clock size={28} />
               </span>
               <div>
-                <h1 className="text-3xl font-bold text-slate-900 sm:text-4xl">발화 타임라인</h1>
+                <h1 className="text-3xl font-bold text-slate-900 sm:text-4xl">대화 타임라인</h1>
                 <p className="text-sm text-slate-500 sm:text-base">
                   날짜별로 아이의 음성 상호작용 기록을 한눈에 확인하세요
                 </p>
@@ -28,39 +28,7 @@ export default function Timeline() {
           </div>
         </section>
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[0.9fr,1.1fr] xl:grid-cols-[0.8fr,1.2fr]">
-          {/* Filters */}
-          <div className="space-y-4">
-            <div className="rounded-[28px] border border-[#F4D7E8] bg-[#FFF7FB] p-6 shadow-sm">
-              <div className="mb-4 space-y-1">
-                <p className="text-xs font-semibold uppercase tracking-wide text-[#A678E3]">filters</p>
-                <h3 className="text-lg font-semibold text-slate-900">기록 탐색</h3>
-                <p className="text-sm text-slate-500">필요한 순간을 빠르게 찾아보세요</p>
-              </div>
-              <div className="space-y-4">
-                <div>
-                  <label className="text-sm font-semibold text-slate-700">
-                    날짜
-                  </label>
-                  <input
-                    type="date"
-                    className="mt-2 w-full rounded-xl border border-[#F4D7E8] bg-white/90 px-3 py-2 text-sm text-slate-900 shadow-inner focus:border-[#A678E3] focus:outline-none focus:ring-2 focus:ring-[#A678E3]/40"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-semibold text-slate-700">
-                    의도
-                  </label>
-                  <select className="mt-2 w-full rounded-xl border border-[#F4D7E8] bg-white/90 px-3 py-2 text-sm text-slate-900 shadow-inner focus:border-[#A678E3] focus:outline-none focus:ring-2 focus:ring-[#A678E3]/40">
-                    <option>모두</option>
-                    <option>요청</option>
-                    <option>부르기</option>
-                    <option>모방</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div className="lg:grid-cols-[0.9fr,1.1fr] xl:grid-cols-[0.8fr,1.2fr]">
 
           {/* Timeline */}
           <div className="space-y-5">
@@ -104,7 +72,7 @@ export default function Timeline() {
                       </p>
                     </div>
                     <button className="inline-flex items-center gap-2 rounded-full border border-[#E17AA4]/50 bg-[#FFF2F8] px-3 py-1 text-xs font-semibold text-[#E17AA4] transition hover:border-[#E17AA4] hover:bg-[#FFE4F1]">
-                      ▶ 재생 미리보기
+                      ▶ 재생하기
                     </button>
                   </div>
 
