@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useRef, useState, useEffect } from "react";
 import { Layout } from "@/components/Layout";
 import {
   Sparkles,
@@ -11,6 +11,40 @@ import {
   Play,
 } from "lucide-react";
 import { toast } from "sonner";
+import { authenticatedFetch } from "@/lib/api";
+
+interface GrowthReport {
+  vocabularyCount: number;
+  twoWordSentences: number;
+  conversationDuration: number;
+  progressMetrics: Array<{
+    label: string;
+    value: string;
+    helper: string;
+    trend: string;
+    progress: number;
+    color: string;
+  }>;
+  dailyMoments: Array<{
+    time: string;
+    script: string;
+    focus: string;
+  }>;
+  stageGuides: Array<{
+    stage: string;
+    color: string;
+    summary: string;
+    actions: string[];
+    example: string;
+  }>;
+  recommendations: Array<{
+    title: string;
+    detail: string;
+    tip: string;
+  }>;
+  parentAssist: string[];
+}
+
 
 const progressMetrics = [
   {
@@ -143,6 +177,32 @@ const recommendations = [
 export default function Growth() {
   const reportRef = useRef<HTMLDivElement>(null);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const [growthData, setGrowthData] = useState<GrowthReport | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchGrowthData();
+  }, []);
+
+  const fetchGrowthData = async () => {
+    try {
+      setLoading(true);
+      const response = await authenticatedFetch('/api/growth/weekly-report');
+
+      if (!response.ok) {
+        throw new Error('성장 데이터를 불러오는데 실패했습니다.');
+      }
+
+      const data = await response.json();
+      setGrowthData(data);
+    } catch (err) {
+      console.error('Growth data fetch error:', err);
+      setError(err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleDownloadPdf = useCallback(async () => {
     if (!reportRef.current) {
@@ -238,194 +298,57 @@ export default function Growth() {
     }
   }, []);
 
+  if (loading) {
+    return (
+      <Layout showNav={true}>
+        <div className="max-w-6xl mx-auto px-4 sm:px-8 py-12 space-y-6">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-muted-foreground">성장 데이터를 불러오는 중...</p>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (error) {
+    return (
+      <Layout showNav={true}>
+        <div className="max-w-6xl mx-auto px-4 sm:px-8 py-12 space-y-6">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <p className="text-destructive mb-4">{error}</p>
+              <button
+                onClick={fetchGrowthData}
+                className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90"
+              >
+                다시 시도
+              </button>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (!growthData) {
+    return (
+      <Layout showNav={true}>
+        <div className="max-w-6xl mx-auto px-4 sm:px-8 py-12 space-y-6">
+          <div className="flex items-center justify-center h-64">
+            <p className="text-muted-foreground">데이터를 불러올 수 없습니다.</p>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
   return (
     <Layout showNav={true}>
       <div className="max-w-6xl mx-auto px-4 sm:px-8 py-6 space-y-6">
-        
-        <div ref={reportRef} className="space-y-16">
-          {/* Hero / Snapshot */}
-          <section className="relative overflow-hidden rounded-[40px] bg-gradient-to-br from-[#FDE4EC] via-[#F4E5FB] to-[#E0F1FF] p-8 sm:p-12 shadow-xl">
-            <div className="absolute -top-16 -left-10 h-44 w-44 rounded-full bg-white/40 blur-3xl" />
-            <div className="absolute -bottom-12 -right-8 h-48 w-48 rounded-full bg-[#E7D7FA]/60 blur-3xl" />
-            <div className="relative grid gap-10 lg:grid-cols-[1.1fr,1fr] items-start">
-              <div className="space-y-6">
-                <span className="inline-flex items-center gap-2 rounded-full bg-white/70 px-4 py-1 text-sm font-semibold text-[#E17AA4] shadow-sm">
-                  이번 주 우리 아이 성장 보고서 💕
-                </span>
-                <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 leading-tight">
-                  말로 표현하는 즐거움이 쑥쑥 자라는 중이에요!
-                </h1>
-                <p className="text-base sm:text-lg leading-relaxed text-slate-600 text-[#BAABBA]">
-                  이번 주에는 아이가 어떤 말을 배웠을까요? 🌼
-                </p>
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                <div className="rounded-2xl bg-white/80 px-4 py-5 shadow-sm border border-white/60">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-[#A678E3]">주요 어휘</p>
-                  <p className="mt-2 text-3xl font-bold text-slate-900">42</p>
-                  <p className="text-xs text-slate-500">지난달보다 단어가 18% 늘었어요 👏</p>
-                </div>
-                <div className="rounded-2xl bg-white/80 px-4 py-5 shadow-sm border border-white/60">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-[#E17AA4]">두 단어 말하기</p>
-                  <p className="mt-2 text-3xl font-bold text-slate-900">9회</p>
-                  <p className="text-xs text-slate-500">“더 우유”처럼 문장으로 말했어요!</p>
-                </div>
-                <div className="rounded-2xl bg-white/80 px-4 py-5 shadow-sm border border-white/60">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-[#7EC4CF]">대화 이어가기</p>
-                  <p className="mt-2 text-3xl font-bold text-slate-900">6분</p>
-                  <p className="text-xs text-slate-500">평균 4번씩 주고받았어요 💬</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="rounded-[32px] border border-white/70 bg-white/90 p-6 sm:p-8 shadow-lg">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-[#A678E3]">
-                    성장 지표
-                  </p>
-                  <p className="text-lg font-bold text-slate-900">우리 아이의 성장 속도는 적당해요</p>
-                </div>
-                <Sparkles className="text-[#E17AA4]" size={24} />
-              </div>
-              <div className="mt-6 space-y-5">
-                {progressMetrics.map((metric) => (
-                  <div key={metric.label} className="space-y-2">
-                    <div className="flex items-center justify-between text-sm text-slate-500">
-                      <span className="font-semibold text-slate-700">{metric.label}</span>
-                      <span>{metric.helper}</span>
-                    </div>
-                    <div className="flex items-end justify-between">
-                      <span className="text-xl font-bold text-slate-900">{metric.value}</span>
-                      <span className="text-xs text-slate-500">{metric.trend}</span>
-                    </div>
-                    <div className="h-2 rounded-full bg-slate-100/80">
-                      <div
-                        className="h-2 rounded-full"
-                        style={{
-                          width: `${metric.progress}%`,
-                          backgroundColor: metric.color,
-                        }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <p className="mt-6 text-xs leading-relaxed text-slate-500">
-                22.3개월 아이의 평균 활용 어휘는 50개예요. 아이가 더 많은 단어를 학습할 수 있도록 도담이 도울게요. 🌟
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* Conversation Diary + Parent Assist */}
-        <section className="grid grid-cols-1 gap-6 lg:grid-cols-[1.1fr,0.9fr]">
-          <div className="rounded-[32px] border border-[#F4D7E8] bg-white/90 p-6 sm:p-8 shadow-lg space-y-6">
-            <div className="flex items-center gap-3">
-              <Brain className="text-[#A678E3]" size={24} />
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-[#A678E3]">Conversation Diary</p>
-                <h3 className="text-xl font-bold text-slate-900">오늘 나눈 따뜻한 대화들</h3>
-              </div>
-            </div>
-            <div className="space-y-5">
-              {dailyMoments.map((moment) => (
-                <div key={moment.time} className="rounded-2xl border border-[#F4D7E8] bg-[#FFF7FB] p-4">
-                  <div className="flex items-center justify-between text-xs font-semibold text-[#E17AA4]">
-                    <span>{moment.time}</span>
-                    <span>{moment.focus}</span>
-                  </div>
-                  <p className="mt-2 text-sm leading-relaxed text-slate-700">{moment.script}</p>
-                </div>
-              ))}
-            </div>
-            <p className="text-xs leading-relaxed text-slate-500">
-              아이의 목소리는 좌측 메뉴의 타임라인에서 확인할수 있어요!
-            </p>
-          </div>
-          {stageGuides.map((stage) => (
-            <div
-              key={stage.stage}
-              className="rounded-[32px] border border-[#F4D7E8] bg-white/90 p-6 sm:p-8 shadow-lg space-y-5"
-            >
-              <div className="flex items-center gap-3">
-                <Play style={{ color: stage.color }} size={22} />
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: stage.color }}>
-                    {stage.stage}
-                  </p>
-                  <h3 className="text-lg font-bold text-slate-900">{stage.summary}</h3>
-                </div>
-              </div>
-              <ul className="space-y-3 text-sm leading-relaxed text-slate-600">
-                {stage.actions.map((action) => (
-                  <li key={action}>• {action}</li>
-                ))}
-              </ul>
-              <div className="rounded-2xl border border-dashed border-[#F4D7E8] bg-[#FFF7FB] p-4 text-xs font-medium text-slate-600">
-                {stage.example}
-              </div>
-            </div>
-          ))}
-        </section>
-
-        <section className="rounded-[32px] border border-[#E7D7FA] bg-white/90 p-6 sm:p-8 shadow-lg space-y-6">
-          <div className="flex items-center gap-3">
-            <HandHeart className="text-[#E17AA4]" size={24} />
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-[#E17AA4]">Parent Assist</p>
-              <h3 className="text-xl font-bold text-slate-900">도담이의 관찰을 바탕으로 드리는 조언</h3>
-            </div>
-          </div>
-
-          <ul className="space-y-4 text-sm leading-relaxed text-slate-600">
-            <li>
-              • 오늘 도담이와 아이의 대화에서 <b>짧은 응답 후에 대화가 자주 멈췄어요.</b> 부모님이 아이의 말 뒤에 한
-              단어만 더 이어주시면, 문장 길이가 자연스럽게 늘어날 거예요.
-              <br />
-              <span className="text-[#A678E3] text-xs">예: 아이 “공!” → “공 굴러간다!”</span>
-            </li>
-            <li>
-              • 아이가 <b>요청형 말(“더”, “줘”)</b>을 자주 사용했어요. 이는 언어 이해가 빠르게 성장하는 시기예요. “무엇을
-              더?”처럼 선택지를 주면 이해력과 표현력이 함께 자라납니다 💬
-            </li>
-            <li>
-              • 도담이의 관찰에 따르면, <b>감정 표현어(‘좋아’, ‘싫어’ 등)</b> 반응이 아직 적어요. 놀이 중에 부모님이 “즐거워!”,
-              “화났구나!”처럼 감정을 말로 표현해주면 아이가 스스로 감정을 언어로 표현하기 쉬워집니다 💖
-            </li>
-          </ul>
-
-          <div className="rounded-2xl border border-dashed border-[#E7D7FA] bg-[#FDF5FF] p-4 text-xs leading-relaxed text-slate-600">
-            💡 연구에 따르면, 부모의 짧은 확장 말과 일관된 반응은 아이의 언어 이해력을 평균 5점 이상 향상시킬 수 있어요
-            (Roberts & Kaiser, 2015). 내일은 도담이와의 대화 후, 잠시 멈추고 아이의 반응을 기다려보세요 — 짧은 ‘기다림’이
-            언어를 자라게 해요 🌱
-          </div>
-        </section>
-
-        {/* Recommendations */}
-        <section className="space-y-8 rounded-[36px] border border-[#F4D7E8] bg-white/90 p-8 sm:p-10 shadow-xl">
-          <div className="text-center space-y-3">
-            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">다음 주에는 이렇게 함께해요</h2>
-            <p className="mx-auto max-w-3xl text-sm sm:text-base leading-relaxed text-slate-600">
-              이번 주 성장 지표를 바탕으로 준비했어요. 부모님 참여, 놀이 환경, 어휘 확장을 고르게 담았어요.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-            {recommendations.map((item) => (
-              <div key={item.title} className="rounded-3xl border border-[#F4D7E8] bg-[#FFF7FB] p-6 shadow-sm space-y-3">
-                <h3 className="text-lg font-semibold text-slate-900">{item.title}</h3>
-                <p className="text-sm leading-relaxed text-slate-600">{item.detail}</p>
-                <p className="text-xs font-medium text-[#A678E3]">{item.tip}</p>
-              </div>
-            ))}
-          </div>
-          <p className="text-center text-xs text-slate-500">
-            💡 소아과나 언어치료 상담 때 리포트를 함께 보여주시면, 더 꼭 맞는 조언을 빠르게 받으실 수 있어요.
-          </p>
-
-            
-          
-        </section>
-        <div className="flex justify-center">
+        <div className="flex justify-end">
           <button
             type="button"
             onClick={handleDownloadPdf}
@@ -449,6 +372,205 @@ export default function Growth() {
             )}
           </button>
         </div>
+
+        <div ref={reportRef} className="space-y-16">
+          {/* Hero / Snapshot */}
+          <section className="relative overflow-hidden rounded-[40px] bg-gradient-to-br from-[#FDE4EC] via-[#F4E5FB] to-[#E0F1FF] p-8 sm:p-12 shadow-xl">
+            <div className="absolute -top-16 -left-10 h-44 w-44 rounded-full bg-white/40 blur-3xl" />
+            <div className="absolute -bottom-12 -right-8 h-48 w-48 rounded-full bg-[#E7D7FA]/60 blur-3xl" />
+            <div className="relative grid gap-10 lg:grid-cols-[1.1fr,1fr] items-start">
+              <div className="space-y-6">
+                <span className="inline-flex items-center gap-2 rounded-full bg-white/70 px-4 py-1 text-sm font-semibold text-[#E17AA4] shadow-sm">
+                  이번 주 우리 아이 성장 보고서 💕
+                </span>
+                <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 leading-tight">
+                  말로 표현하는 즐거움이 쑥쑥 자라는 중이에요!
+                </h1>
+                <p className="text-base sm:text-lg leading-relaxed text-slate-600 text-[#BAABBA]">
+                  이번 주에는 아이가 어떤 말을 배웠을까요? 🌼
+                </p>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                  <div className="rounded-2xl bg-white/80 px-4 py-5 shadow-sm border border-white/60">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-[#A678E3]">주요 어휘</p>
+                    <p className="mt-2 text-3xl font-bold text-slate-900">{growthData.vocabularyCount}</p>
+                    <p className="text-xs text-slate-500">지난달보다 단어가 18% 늘었어요 👏</p>
+                  </div>
+                  <div className="rounded-2xl bg-white/80 px-4 py-5 shadow-sm border border-white/60">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-[#E17AA4]">두 단어 말하기</p>
+                    <p className="mt-2 text-3xl font-bold text-slate-900">{growthData.twoWordSentences}회</p>
+                    <p className="text-xs text-slate-500">“더 우유”처럼 문장으로 말했어요!</p>
+                  </div>
+                  <div className="rounded-2xl bg-white/80 px-4 py-5 shadow-sm border border-white/60">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-[#7EC4CF]">대화 이어가기</p>
+                    <p className="mt-2 text-3xl font-bold text-slate-900">{growthData.conversationDuration}분</p>
+                    <p className="text-xs text-slate-500">평균 4번씩 주고받았어요 💬</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-[32px] border border-white/70 bg-white/90 p-6 sm:p-8 shadow-lg">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-[#A678E3]">
+                      성장 지표
+                    </p>
+                    <p className="text-lg font-bold text-slate-900">우리 아이의 성장 속도는 적당해요</p>
+                  </div>
+                  <Sparkles className="text-[#E17AA4]" size={24} />
+                </div>
+                <div className="mt-6 space-y-5">
+                  {growthData.progressMetrics?.map((metric) => (
+                    <div key={metric.label} className="space-y-2">
+                      <div className="flex items-center justify-between text-sm text-slate-500">
+                        <span className="font-semibold text-slate-700">{metric.label}</span>
+                        <span>{metric.helper}</span>
+                      </div>
+                      <div className="flex items-end justify-between">
+                        <span className="text-xl font-bold text-slate-900">{metric.value}</span>
+                        <span className="text-xs text-slate-500">{metric.trend}</span>
+                      </div>
+                      <div className="h-2 rounded-full bg-slate-100/80">
+                        <div
+                          className="h-2 rounded-full"
+                          style={{
+                            width: `${metric.progress}%`,
+                            backgroundColor: metric.color,
+                          }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <p className="mt-6 text-xs leading-relaxed text-slate-500">
+                  22.3개월 아이의 평균 활용 어휘는 50개예요. 아이가 더 많은 단어를 학습할 수 있도록 도담이 도울게요. 🌟
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* Conversation Diary + Parent Assist */}
+          <section className="grid grid-cols-1 gap-6 lg:grid-cols-[1.1fr,0.9fr]">
+            <div className="rounded-[32px] border border-[#F4D7E8] bg-white/90 p-6 sm:p-8 shadow-lg space-y-6">
+              <div className="flex items-center gap-3">
+                <Brain className="text-[#A678E3]" size={24} />
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-[#A678E3]">Conversation Diary</p>
+                  <h3 className="text-xl font-bold text-slate-900">오늘 나눈 따뜻한 대화들</h3>
+                </div>
+              </div>
+              <div className="space-y-5">
+                {growthData.dailyMoments?.map((moment) => (
+                  <div key={moment.time} className="rounded-2xl border border-[#F4D7E8] bg-[#FFF7FB] p-4">
+                    <div className="flex items-center justify-between text-xs font-semibold text-[#E17AA4]">
+                      <span>{moment.time}</span>
+                      <span>{moment.focus}</span>
+                    </div>
+                    <p className="mt-2 text-sm leading-relaxed text-slate-700">{moment.script}</p>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs leading-relaxed text-slate-500">
+                아이의 목소리는 좌측 메뉴의 타임라인에서 확인할수 있어요!
+              </p>
+            </div>
+            {growthData.stageGuides?.map((stage) => (
+              <div
+                key={stage.stage}
+                className="rounded-[32px] border border-[#F4D7E8] bg-white/90 p-6 sm:p-8 shadow-lg space-y-5"
+              >
+                <div className="flex items-center gap-3">
+                  <Play style={{ color: stage.color }} size={22} />
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: stage.color }}>
+                      {stage.stage}
+                    </p>
+                    <h3 className="text-lg font-bold text-slate-900">{stage.summary}</h3>
+                  </div>
+                </div>
+                <ul className="space-y-3 text-sm leading-relaxed text-slate-600">
+                  {stage.actions?.map((action) => (
+                    <li key={action}>• {action}</li>
+                  ))}
+                </ul>
+                <div className="rounded-2xl border border-dashed border-[#F4D7E8] bg-[#FFF7FB] p-4 text-xs font-medium text-slate-600">
+                  {stage.example}
+                </div>
+              </div>
+            ))}
+          </section>
+
+          <section className="rounded-[32px] border border-[#E7D7FA] bg-white/90 p-6 sm:p-8 shadow-lg space-y-6">
+            <div className="flex items-center gap-3">
+              <HandHeart className="text-[#E17AA4]" size={24} />
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-[#E17AA4]">Parent Assist</p>
+                <h3 className="text-xl font-bold text-slate-900">도담이의 관찰을 바탕으로 드리는 조언</h3>
+              </div>
+            </div>
+
+            <ul className="space-y-4 text-sm leading-relaxed text-slate-600">
+              {growthData.parentAssist?.map((assist, index) => (
+                <li key={index}>
+                  • {assist}
+                </li>
+              ))}
+            </ul>
+
+            <div className="rounded-2xl border border-dashed border-[#E7D7FA] bg-[#FDF5FF] p-4 text-xs leading-relaxed text-slate-600">
+              💡 연구에 따르면, 부모의 짧은 확장 말과 일관된 반응은 아이의 언어 이해력을 평균 5점 이상 향상시킬 수 있어요
+              (Roberts & Kaiser, 2015). 내일은 도담이와의 대화 후, 잠시 멈추고 아이의 반응을 기다려보세요 — 짧은 ‘기다림’이
+              언어를 자라게 해요 🌱
+            </div>
+          </section>
+
+          {/* Recommendations */}
+          <section className="space-y-8 rounded-[36px] border border-[#F4D7E8] bg-white/90 p-8 sm:p-10 shadow-xl">
+            <div className="text-center space-y-3">
+              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">다음 주에는 이렇게 함께해요</h2>
+              <p className="mx-auto max-w-3xl text-sm sm:text-base leading-relaxed text-slate-600">
+                이번 주 성장 지표를 바탕으로 준비했어요. 부모님 참여, 놀이 환경, 어휘 확장을 고르게 담았어요.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+              {growthData.recommendations?.map((item) => (
+                <div key={item.title} className="rounded-3xl border border-[#F4D7E8] bg-[#FFF7FB] p-6 shadow-sm space-y-3">
+                  <h3 className="text-lg font-semibold text-slate-900">{item.title}</h3>
+                  <p className="text-sm leading-relaxed text-slate-600">{item.detail}</p>
+                  <p className="text-xs font-medium text-[#A678E3]">{item.tip}</p>
+                </div>
+              ))}
+            </div>
+            <p className="text-center text-xs text-slate-500">
+              💡 소아과나 언어치료 상담 때 리포트를 함께 보여주시면, 더 꼭 맞는 조언을 빠르게 받으실 수 있어요.
+            </p>
+
+
+
+          </section>
+          <div className="flex justify-center">
+            <button
+              type="button"
+              onClick={handleDownloadPdf}
+              disabled={isGeneratingPdf}
+              className="inline-flex items-center gap-2 rounded-full bg-[#A678E3] px-5 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-[#8f5cd1] focus:outline-none focus:ring-2 focus:ring-[#A678E3]/40 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-[#CDB7F2]"
+              aria-live="polite"
+              aria-busy={isGeneratingPdf}
+            >
+              {isGeneratingPdf ? (
+                <>
+                  <span className="inline-flex h-4 w-4 items-center justify-center">
+                    <span className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  </span>
+                  <span>PDF 생성 중...</span>
+                </>
+              ) : (
+                <>
+                  <Download size={16} />
+                  <span>PDF로 저장하기</span>
+                </>
+              )}
+            </button>
+          </div>
 
         </div>
       </div>

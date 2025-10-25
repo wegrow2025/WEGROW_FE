@@ -1,15 +1,92 @@
 import { Layout } from "@/components/Layout";
-import { Settings as SettingsIcon, Toggle as ToggleIcon } from "lucide-react";
-import { useState } from "react";
+import { Settings as SettingsIcon } from "lucide-react";
+import { useState, useEffect } from "react";
+import { authenticatedFetch } from "@/lib/api";
+
+interface UserSettings {
+  recordingCollection: boolean;
+  analysisUsage: boolean;
+  coachingRecommendations: boolean;
+  notificationsEnabled: boolean;
+  emailReports: boolean;
+}
+
+interface UserProfile {
+  email: string;
+  childAge: number;
+}
+
+// API_BASE_URL은 더 이상 필요하지 않음 (authenticatedFetch 사용)
 
 export default function Settings() {
-  const [settings, setSettings] = useState({
+  const [settings, setSettings] = useState<UserSettings>({
     recordingCollection: true,
     analysisUsage: true,
     coachingRecommendations: true,
     notificationsEnabled: true,
     emailReports: true,
   });
+  const [userProfile, setUserProfile] = useState<UserProfile>({
+    email: '',
+    childAge: 18
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    fetchSettingsData();
+  }, []);
+
+  const fetchSettingsData = async () => {
+    try {
+      setLoading(true);
+      const response = await authenticatedFetch('/api/settings');
+
+      if (!response.ok) {
+        throw new Error('설정 데이터를 불러오는데 실패했습니다.');
+      }
+
+      const data = await response.json();
+      setSettings({
+        recordingCollection: data.recordingCollection,
+        analysisUsage: data.analysisUsage,
+        coachingRecommendations: data.coachingRecommendations,
+        notificationsEnabled: data.notificationsEnabled,
+        emailReports: data.emailReports,
+      });
+      setUserProfile({
+        email: data.user.email,
+        childAge: data.user.childAge
+      });
+    } catch (err) {
+      console.error('Settings data fetch error:', err);
+      setError(err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const saveSettings = async () => {
+    try {
+      setSaving(true);
+      const response = await authenticatedFetch('/api/settings', {
+        method: 'PUT',
+        body: JSON.stringify(settings)
+      });
+
+      if (!response.ok) {
+        throw new Error('설정 저장에 실패했습니다.');
+      }
+
+      console.log('Settings saved successfully');
+    } catch (err) {
+      console.error('Save settings error:', err);
+      setError(err instanceof Error ? err.message : '설정 저장 중 오류가 발생했습니다.');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const toggleSetting = (key: keyof typeof settings) => {
     setSettings((prev) => ({
@@ -17,6 +94,41 @@ export default function Settings() {
       [key]: !prev[key],
     }));
   };
+
+  if (loading) {
+    return (
+      <Layout showNav={true}>
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-muted-foreground">설정 데이터를 불러오는 중...</p>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (error) {
+    return (
+      <Layout showNav={true}>
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <p className="text-destructive mb-4">{error}</p>
+              <button
+                onClick={fetchSettingsData}
+                className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90"
+              >
+                다시 시도
+              </button>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout showNav={true}>
@@ -52,16 +164,14 @@ export default function Settings() {
                 </div>
                 <button
                   onClick={() => toggleSetting("recordingCollection")}
-                  className={`ml-4 flex-shrink-0 relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                    settings.recordingCollection
-                      ? "bg-primary"
-                      : "bg-muted"
-                  }`}
+                  className={`ml-4 flex-shrink-0 relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${settings.recordingCollection
+                    ? "bg-primary"
+                    : "bg-muted"
+                    }`}
                 >
                   <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                      settings.recordingCollection ? "translate-x-6" : "translate-x-1"
-                    }`}
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${settings.recordingCollection ? "translate-x-6" : "translate-x-1"
+                      }`}
                   />
                 </button>
               </div>
@@ -80,14 +190,12 @@ export default function Settings() {
                 </div>
                 <button
                   onClick={() => toggleSetting("analysisUsage")}
-                  className={`ml-4 flex-shrink-0 relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                    settings.analysisUsage ? "bg-primary" : "bg-muted"
-                  }`}
+                  className={`ml-4 flex-shrink-0 relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${settings.analysisUsage ? "bg-primary" : "bg-muted"
+                    }`}
                 >
                   <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                      settings.analysisUsage ? "translate-x-6" : "translate-x-1"
-                    }`}
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${settings.analysisUsage ? "translate-x-6" : "translate-x-1"
+                      }`}
                   />
                 </button>
               </div>
@@ -106,18 +214,16 @@ export default function Settings() {
                 </div>
                 <button
                   onClick={() => toggleSetting("coachingRecommendations")}
-                  className={`ml-4 flex-shrink-0 relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                    settings.coachingRecommendations
-                      ? "bg-primary"
-                      : "bg-muted"
-                  }`}
+                  className={`ml-4 flex-shrink-0 relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${settings.coachingRecommendations
+                    ? "bg-primary"
+                    : "bg-muted"
+                    }`}
                 >
                   <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                      settings.coachingRecommendations
-                        ? "translate-x-6"
-                        : "translate-x-1"
-                    }`}
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${settings.coachingRecommendations
+                      ? "translate-x-6"
+                      : "translate-x-1"
+                      }`}
                   />
                 </button>
               </div>
@@ -142,16 +248,14 @@ export default function Settings() {
                 </div>
                 <button
                   onClick={() => toggleSetting("notificationsEnabled")}
-                  className={`ml-4 flex-shrink-0 relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                    settings.notificationsEnabled ? "bg-primary" : "bg-muted"
-                  }`}
+                  className={`ml-4 flex-shrink-0 relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${settings.notificationsEnabled ? "bg-primary" : "bg-muted"
+                    }`}
                 >
                   <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                      settings.notificationsEnabled
-                        ? "translate-x-6"
-                        : "translate-x-1"
-                    }`}
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${settings.notificationsEnabled
+                      ? "translate-x-6"
+                      : "translate-x-1"
+                      }`}
                   />
                 </button>
               </div>
@@ -169,14 +273,12 @@ export default function Settings() {
                 </div>
                 <button
                   onClick={() => toggleSetting("emailReports")}
-                  className={`ml-4 flex-shrink-0 relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                    settings.emailReports ? "bg-primary" : "bg-muted"
-                  }`}
+                  className={`ml-4 flex-shrink-0 relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${settings.emailReports ? "bg-primary" : "bg-muted"
+                    }`}
                 >
                   <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                      settings.emailReports ? "translate-x-6" : "translate-x-1"
-                    }`}
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${settings.emailReports ? "translate-x-6" : "translate-x-1"
+                      }`}
                   />
                 </button>
               </div>
@@ -233,6 +335,17 @@ export default function Settings() {
 
           <button className="w-full px-4 py-3 rounded-lg border-2 border-destructive text-destructive font-semibold hover:bg-destructive/5 transition">
             계정 삭제
+          </button>
+        </div>
+
+        {/* Save Button */}
+        <div className="flex justify-end">
+          <button
+            onClick={saveSettings}
+            disabled={saving}
+            className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition"
+          >
+            {saving ? '저장 중...' : '설정 저장'}
           </button>
         </div>
 

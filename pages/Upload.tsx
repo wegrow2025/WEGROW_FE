@@ -1,39 +1,171 @@
 import { Layout } from "@/components/Layout";
 import { Upload as UploadIcon, Mic, X, CheckCircle, Bot, Volume2 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { RealtimeAudio } from "@/components/RealtimeAudio";
 import { TTSPlayer } from "@/components/TTSPlayer";
+import { authenticatedFetch } from "@/lib/api";
+
+interface AudioSample {
+  id: string;
+  timestamp: string;
+  duration: number;
+  source: string;
+  status: string;
+  notes: string;
+  audioUrl?: string;
+  analysisResult?: {
+    transcription: string;
+    intent: string;
+    confidence: number;
+    recommendedResponse: string;
+  };
+}
+
+interface Statistics {
+  robotCollected: number;
+  parentUploaded: number;
+  analysisCompleted: number;
+}
+
+// API_BASE_URL은 더 이상 필요하지 않음 (authenticatedFetch 사용)
 
 export default function Upload() {
   const [dragActive, setDragActive] = useState(false);
   const [activeTab, setActiveTab] = useState<'upload' | 'realtime' | 'tts'>('upload');
+  const [samples, setSamples] = useState<AudioSample[]>([]);
+  const [statistics, setStatistics] = useState<Statistics>({
+    robotCollected: 0,
+    parentUploaded: 0,
+    analysisCompleted: 0
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
-  const samples = [
-    {
-      id: 1,
-      timestamp: "오늘 14:32",
-      duration: "3초",
-      source: "로봇 자동 수집",
-      status: "분석 완료",
-      notes: "",
-    },
-    {
-      id: 2,
-      timestamp: "오늘 12:15",
-      duration: "5초",
-      source: "부모 업로드",
-      status: "분석 중...",
-      notes: "일반 옹알이",
-    },
-    {
-      id: 3,
-      timestamp: "어제 10:44",
-      duration: "2초",
-      source: "로봇 자동 수집",
-      status: "분석 완료",
-      notes: "잠꼬대 - 제외됨",
-    },
-  ];
+  useEffect(() => {
+    fetchSamplesData();
+  }, []);
+
+  const fetchSamplesData = async () => {
+    try {
+      setLoading(true);
+      const response = await authenticatedFetch('/api/audio/samples');
+
+      if (!response.ok) {
+        throw new Error('음성 샘플 데이터를 불러오는데 실패했습니다.');
+      }
+
+      const data = await response.json();
+      setSamples(data.samples || []);
+      setStatistics(data.statistics || {
+        robotCollected: 0,
+        parentUploaded: 0,
+        analysisCompleted: 0
+      });
+    } catch (err) {
+      console.error('Samples data fetch error:', err);
+      setError(err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFileUpload = async (file: File) => {
+    try {
+      setIsUploading(true);
+      setUploadProgress(0);
+
+      const formData = new FormData();
+      formData.append('audioFile', file);
+      formData.append('source', 'parent');
+      formData.append('duration', '0'); // Will be calculated on server
+
+      const response = await authenticatedFetch('/api/audio/upload', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!response.ok) {
+        throw new Error('파일 업로드에 실패했습니다.');
+      }
+
+      const data = await response.json();
+      console.log('Upload successful:', data);
+
+      // Refresh samples data
+      await fetchSamplesData();
+    } catch (err) {
+      console.error('Upload error:', err);
+      setError(err instanceof Error ? err.message : '업로드 중 오류가 발생했습니다.');
+    } finally {
+      setIsUploading(false);
+      setUploadProgress(0);
+    }
+  };
+
+  const handleDeleteSample = async (id: string) => {
+    try {
+      const response = await authenticatedFetch(`/api/audio/samples/${id}`, {
+        method: 'DELETE'
+      });
+
+      if (response.ok) {
+        await fetchSamplesData();
+      }
+    } catch (err) {
+      console.error('Delete error:', err);
+    }
+  };
+
+  const handleReanalyzeSample = async (id: string) => {
+    try {
+      const response = await authenticatedFetch(`/api/audio/samples/${id}/reanalyze`, {
+        method: 'POST'
+      });
+
+      if (response.ok) {
+        await fetchSamplesData();
+      }
+    } catch (err) {
+      console.error('Reanalyze error:', err);
+    }
+  };
+
+  if (loading) {
+    return (
+      <Layout showNav={true}>
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-muted-foreground">음성 데이터를 불러오는 중...</p>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (error) {
+    return (
+      <Layout showNav={true}>
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <p className="text-destructive mb-4">{error}</p>
+              <button
+                onClick={fetchSamplesData}
+                className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90"
+              >
+                다시 시도
+              </button>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout showNav={true}>
@@ -148,75 +280,87 @@ export default function Upload() {
             최근 샘플 (17개)
           </h3>
 
-          {samples.map((sample) => (
-            <div
-              key={sample.id}
-              className="bg-card rounded-xl p-6 border hover:border-primary/50 transition"
-            >
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <p className="text-sm font-semibold text-primary">
-                    {sample.timestamp}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {sample.duration} • {sample.source}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span
-                    className={`text-xs font-semibold px-3 py-1 rounded-full ${sample.status === "분석 완료"
-                      ? "bg-primary/10 text-primary"
-                      : "bg-accent/10 text-accent-foreground"
-                      }`}
-                  >
-                    {sample.status === "분석 완료" && (
-                      <>
-                        <CheckCircle size={14} className="inline mr-1" />
-                        {sample.status}
-                      </>
-                    )}
-                    {sample.status !== "분석 완료" && sample.status}
-                  </span>
-                </div>
-              </div>
-
-              {/* Waveform Preview */}
-              <div className="bg-muted/50 rounded-lg p-3 mb-4 h-12 flex items-center justify-between">
-                <div className="flex gap-1 items-center flex-1">
-                  {[...Array(12)].map((_, i) => (
-                    <div
-                      key={i}
-                      className="bg-primary/60 rounded-sm flex-1"
-                      style={{
-                        height: `${Math.random() * 100}%`,
-                        minHeight: "2px",
-                      }}
-                    />
-                  ))}
-                </div>
-                <button className="ml-4 p-2 hover:bg-muted rounded-lg text-primary">
-                  ▶️
-                </button>
-              </div>
-
-              {/* Notes */}
-              <input
-                type="text"
-                placeholder="메모 추가 (예: 잠꼬대, 배경음, 형/누나 음성)"
-                defaultValue={sample.notes}
-                className="w-full px-3 py-2 text-sm rounded-lg border bg-background text-foreground placeholder-muted-foreground"
-              />
-
-              <div className="flex gap-2 mt-3">
-                <button className="text-xs px-3 py-1 rounded-lg text-primary border border-primary/30 hover:bg-primary/5 transition">
-                  분석 다시 실행
-                </button>
-                <button className="text-xs px-3 py-1 rounded-lg text-muted-foreground border hover:bg-muted transition ml-auto">
-                  <X size={14} className="inline" /> 삭제
-                </button>
-              </div>
+          {samples.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">음성 샘플이 없습니다.</p>
             </div>
-          ))}
+          ) : (
+            samples.map((sample) => (
+              <div
+                key={sample.id}
+                className="bg-card rounded-xl p-6 border hover:border-primary/50 transition"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    <p className="text-sm font-semibold text-primary">
+                      {sample.timestamp}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {sample.duration}초 • {sample.source}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`text-xs font-semibold px-3 py-1 rounded-full ${sample.status === "분석 완료"
+                        ? "bg-primary/10 text-primary"
+                        : "bg-accent/10 text-accent-foreground"
+                        }`}
+                    >
+                      {sample.status === "분석 완료" && (
+                        <>
+                          <CheckCircle size={14} className="inline mr-1" />
+                          {sample.status}
+                        </>
+                      )}
+                      {sample.status !== "분석 완료" && sample.status}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Waveform Preview */}
+                <div className="bg-muted/50 rounded-lg p-3 mb-4 h-12 flex items-center justify-between">
+                  <div className="flex gap-1 items-center flex-1">
+                    {[...Array(12)].map((_, i) => (
+                      <div
+                        key={i}
+                        className="bg-primary/60 rounded-sm flex-1"
+                        style={{
+                          height: `${Math.random() * 100}%`,
+                          minHeight: "2px",
+                        }}
+                      />
+                    ))}
+                  </div>
+                  <button className="ml-4 p-2 hover:bg-muted rounded-lg text-primary">
+                    ▶️
+                  </button>
+                </div>
+
+                {/* Notes */}
+                <input
+                  type="text"
+                  placeholder="메모 추가 (예: 잠꼬대, 배경음, 형/누나 음성)"
+                  defaultValue={sample.notes}
+                  className="w-full px-3 py-2 text-sm rounded-lg border bg-background text-foreground placeholder-muted-foreground"
+                />
+
+                <div className="flex gap-2 mt-3">
+                  <button
+                    onClick={() => handleReanalyzeSample(sample.id)}
+                    className="text-xs px-3 py-1 rounded-lg text-primary border border-primary/30 hover:bg-primary/5 transition"
+                  >
+                    분석 다시 실행
+                  </button>
+                  <button
+                    onClick={() => handleDeleteSample(sample.id)}
+                    className="text-xs px-3 py-1 rounded-lg text-muted-foreground border hover:bg-muted transition ml-auto"
+                  >
+                    <X size={14} className="inline" /> 삭제
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
         </div>
 
         {/* Privacy Note */}

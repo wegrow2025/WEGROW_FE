@@ -61,6 +61,12 @@ export default function Login() {
         throw new Error(message);
       }
 
+      // JWT 토큰 저장
+      const token = (payload as { token?: string } | null)?.token;
+      if (token) {
+        localStorage.setItem('token', token);
+      }
+
       const userData = (payload as { user?: unknown } | null)?.user ?? payload;
 
       if (userData && typeof userData === "object") {

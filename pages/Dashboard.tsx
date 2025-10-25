@@ -1,7 +1,8 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Layout } from "@/components/Layout";
 import { TrendingUp, Volume2, MessageCircle, Zap, ArrowUp } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { authenticatedFetch } from "@/lib/api";
 
 interface DailyReport {
   vocalizations: number;
@@ -11,17 +12,69 @@ interface DailyReport {
   previousDay?: {
     vocalizations: number;
   };
+  summary: string;
+  recommendedResponse: string;
+  date: string;
+}
+
+interface AgeComparison {
+  vocalizationScore: number;
+  wordUnderstandingScore: number;
+  communicationScore: number;
+  interpretation: string;
+  childAge: number;
 }
 
 export default function Dashboard() {
   const { currentUser } = useAuth();
-  const [report] = useState<DailyReport>({
-    vocalizations: 14,
-    syllableCombinations: 3,
-    meaningfulAttempts: 5,
-    newWords: 1,
-    previousDay: { vocalizations: 12 },
+  const [report, setReport] = useState<DailyReport>({
+    vocalizations: 0,
+    syllableCombinations: 0,
+    meaningfulAttempts: 0,
+    newWords: 0,
+    previousDay: { vocalizations: 0 },
+    summary: "",
+    recommendedResponse: "",
+    date: new Date().toISOString().split('T')[0]
   });
+  const [ageComparison, setAgeComparison] = useState<AgeComparison>({
+    vocalizationScore: 0,
+    wordUnderstandingScore: 0,
+    communicationScore: 0,
+    interpretation: "",
+    childAge: 18
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      const [dailyReportResponse, ageComparisonResponse] = await Promise.all([
+        authenticatedFetch('/api/dashboard/daily-report'),
+        authenticatedFetch('/api/dashboard/age-comparison')
+      ]);
+
+      if (!dailyReportResponse.ok || !ageComparisonResponse.ok) {
+        throw new Error('데이터를 불러오는데 실패했습니다.');
+      }
+
+      const dailyReportData = await dailyReportResponse.json();
+      const ageComparisonData = await ageComparisonResponse.json();
+
+      setReport(dailyReportData);
+      setAgeComparison(ageComparisonData);
+    } catch (err) {
+      console.error('Dashboard data fetch error:', err);
+      setError(err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const userName = useMemo(() => {
     if (currentUser?.name && String(currentUser.name).trim().length > 0) {
@@ -38,6 +91,41 @@ export default function Dashboard() {
   const vocalizationChange =
     report.vocalizations - (report.previousDay?.vocalizations || 0);
   const isPositive = vocalizationChange >= 0;
+
+  if (loading) {
+    return (
+      <Layout showNav={true}>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-muted-foreground">데이터를 불러오는 중...</p>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (error) {
+    return (
+      <Layout showNav={true}>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <p className="text-destructive mb-4">{error}</p>
+              <button
+                onClick={fetchDashboardData}
+                className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90"
+              >
+                다시 시도
+              </button>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout showNav={true}>
@@ -149,7 +237,7 @@ export default function Dashboard() {
             <p className="text-foreground leading-relaxed">
               <span className="font-semibold text-secondary">좋은 소식! 👏</span>
               <br />
-              아이가 오늘 처음으로 두 음절을 조합해서 발성했어요. 이제 더 복잡한 의사소통으로 한 걸음 나아가는 중입니다. 아래의 '지금 해주면 좋은 말'을 참고해서 아이의 시도를 격려해 주세요.
+              {report.summary}
             </p>
           </div>
 
@@ -159,7 +247,7 @@ export default function Dashboard() {
               지금 해주면 좋은 말 💬
             </p>
             <p className="text-lg font-semibold text-foreground italic">
-              "물? 물 주세요? 엄마가 물 줄까요?"
+              "{report.recommendedResponse}"
             </p>
             <p className="text-xs text-muted-foreground mt-2">
               ✓ 아이의 시도를 자연스럽게 확장해서 모델링해주기
@@ -188,11 +276,11 @@ export default function Dashboard() {
                 </div>
                 <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
                   <div className="bg-primary h-full rounded-full" style={{
-                    width: "75%"
+                    width: `${ageComparison.vocalizationScore}%`
                   }} />
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  18개월 평균 범위를 넘어섰습니다
+                  {ageComparison.childAge}개월 평균 범위를 넘어섰습니다
                 </p>
               </div>
 
@@ -207,7 +295,7 @@ export default function Dashboard() {
                 </div>
                 <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
                   <div className="bg-secondary h-full rounded-full" style={{
-                    width: "55%"
+                    width: `${ageComparison.wordUnderstandingScore}%`
                   }} />
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
@@ -226,7 +314,7 @@ export default function Dashboard() {
                 </div>
                 <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
                   <div className="bg-accent h-full rounded-full" style={{
-                    width: "65%"
+                    width: `${ageComparison.communicationScore}%`
                   }} />
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
@@ -237,9 +325,7 @@ export default function Dashboard() {
 
             <div className="mt-6 p-4 bg-accent/10 rounded-lg border border-accent/20">
               <p className="text-sm text-foreground">
-                <span className="font-semibold">💡 해석:</span> 우리 아이는
-                대부분의 영역에서 또래 평균과 함께 성장 중입니다. 특히 음성
-                표현에 강점이 있습니다.
+                <span className="font-semibold">💡 해석:</span> {ageComparison.interpretation}
               </p>
             </div>
           </div>

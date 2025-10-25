@@ -1,21 +1,121 @@
 import { Layout } from "@/components/Layout";
 import { Lightbulb, Heart } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { authenticatedFetch } from "@/lib/api";
+
+interface Tip {
+  id: number;
+  level: string;
+  scenario: string;
+  parentResponse: string;
+  explanation: string;
+  isFavorite?: boolean;
+}
+
+interface EducationContent {
+  modeling: string;
+  expansion: string;
+  repetition: string;
+}
+
+// API_BASE_URL은 더 이상 필요하지 않음 (authenticatedFetch 사용)
 
 export default function Tips() {
   const [favorites, setFavorites] = useState<Set<number>>(new Set());
+  const [tips, setTips] = useState<Tip[]>([]);
+  const [educationContent, setEducationContent] = useState<EducationContent | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [filters, setFilters] = useState({
+    level: '',
+    favorites: false
+  });
 
-  const toggleFavorite = (id: number) => {
-    const newFavorites = new Set(favorites);
-    if (newFavorites.has(id)) {
-      newFavorites.delete(id);
-    } else {
-      newFavorites.add(id);
+  useEffect(() => {
+    fetchTipsData();
+  }, [filters]);
+
+  const fetchTipsData = async () => {
+    try {
+      setLoading(true);
+      const queryParams = new URLSearchParams();
+      if (filters.level) queryParams.append('level', filters.level);
+      if (filters.favorites) queryParams.append('favorites', 'true');
+
+      const response = await authenticatedFetch(`/api/tips?${queryParams}`);
+
+      if (!response.ok) {
+        throw new Error('팁 데이터를 불러오는데 실패했습니다.');
+      }
+
+      const data = await response.json();
+      setTips(data.tips || []);
+      setEducationContent(data.educationContent || null);
+    } catch (err) {
+      console.error('Tips data fetch error:', err);
+      setError(err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.');
+    } finally {
+      setLoading(false);
     }
-    setFavorites(newFavorites);
   };
 
-  const tips = [
+  const toggleFavorite = async (id: number) => {
+    try {
+      const response = await authenticatedFetch(`/api/tips/${id}/favorite`, {
+        method: 'POST'
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const newFavorites = new Set(favorites);
+        if (data.isFavorite) {
+          newFavorites.add(id);
+        } else {
+          newFavorites.delete(id);
+        }
+        setFavorites(newFavorites);
+      }
+    } catch (err) {
+      console.error('Favorite toggle error:', err);
+    }
+  };
+
+  if (loading) {
+    return (
+      <Layout showNav={true}>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-muted-foreground">팁 데이터를 불러오는 중...</p>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (error) {
+    return (
+      <Layout showNav={true}>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <p className="text-destructive mb-4">{error}</p>
+              <button
+                onClick={fetchTipsData}
+                className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90"
+              >
+                다시 시도
+              </button>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  const mockTips = [
     {
       id: 1,
       level: "두 단어 조합 초기 단계",
@@ -77,56 +177,62 @@ export default function Tips() {
 
         {/* Tips Grid */}
         <div className="space-y-4">
-          {tips.map((tip) => (
-            <div
-              key={tip.id}
-              className="bg-card rounded-xl p-6 border hover:border-primary/50 transition group"
-            >
-              <div className="flex items-start justify-between mb-4">
-                <span className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold">
-                  {tip.level}
-                </span>
-                <button
-                  onClick={() => toggleFavorite(tip.id)}
-                  className="p-2 hover:bg-muted rounded-lg transition"
-                >
-                  <Heart
-                    size={20}
-                    className={
-                      favorites.has(tip.id)
-                        ? "fill-secondary text-secondary"
-                        : "text-muted-foreground"
-                    }
-                  />
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                <div className="bg-muted/50 rounded-lg p-4 border border-muted">
-                  <p className="text-sm text-muted-foreground mb-1">아이</p>
-                  <p className="text-lg font-bold text-foreground italic">
-                    {tip.scenario}
-                  </p>
-                </div>
-
-                <div className="bg-primary/5 rounded-lg p-4 border border-primary/20">
-                  <p className="text-sm text-muted-foreground mb-1">
-                    권장 부모 반응
-                  </p>
-                  <p className="text-lg font-semibold text-foreground">
-                    {tip.parentResponse}
-                  </p>
-                </div>
-
-                <div className="bg-accent/5 rounded-lg p-4 border border-accent/20">
-                  <p className="text-sm text-muted-foreground mb-2">💡 왜 이렇게?</p>
-                  <p className="text-sm text-foreground leading-relaxed">
-                    {tip.explanation}
-                  </p>
-                </div>
-              </div>
+          {tips.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">팁 데이터가 없습니다.</p>
             </div>
-          ))}
+          ) : (
+            tips.map((tip) => (
+              <div
+                key={tip.id}
+                className="bg-card rounded-xl p-6 border hover:border-primary/50 transition group"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <span className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold">
+                    {tip.level}
+                  </span>
+                  <button
+                    onClick={() => toggleFavorite(tip.id)}
+                    className="p-2 hover:bg-muted rounded-lg transition"
+                  >
+                    <Heart
+                      size={20}
+                      className={
+                        favorites.has(tip.id)
+                          ? "fill-secondary text-secondary"
+                          : "text-muted-foreground"
+                      }
+                    />
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="bg-muted/50 rounded-lg p-4 border border-muted">
+                    <p className="text-sm text-muted-foreground mb-1">아이</p>
+                    <p className="text-lg font-bold text-foreground italic">
+                      {tip.scenario}
+                    </p>
+                  </div>
+
+                  <div className="bg-primary/5 rounded-lg p-4 border border-primary/20">
+                    <p className="text-sm text-muted-foreground mb-1">
+                      권장 부모 반응
+                    </p>
+                    <p className="text-lg font-semibold text-foreground">
+                      {tip.parentResponse}
+                    </p>
+                  </div>
+
+                  <div className="bg-accent/5 rounded-lg p-4 border border-accent/20">
+                    <p className="text-sm text-muted-foreground mb-2">💡 왜 이렇게?</p>
+                    <p className="text-sm text-foreground leading-relaxed">
+                      {tip.explanation}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
         </div>
 
         {/* Education Section */}
@@ -135,19 +241,35 @@ export default function Tips() {
             언어 발달 기초 이해하기
           </h3>
           <div className="space-y-4 text-sm text-foreground">
-            <p>
-              <span className="font-semibold">📍 모델링:</span> 아이의 발화를
-              바로 수정하지 마세요. 대신 아이가 말한 것을 더 완성된 형태로
-              자연스럽게 다시 말해주세요.
-            </p>
-            <p>
-              <span className="font-semibold">📍 확장:</span> 아이의 한 단어에
-              의미 있는 단어들을 더해서 더 긴 표현으로 확장해 들려주세요.
-            </p>
-            <p>
-              <span className="font-semibold">📍 반복:</span> 같은 개념을
-              여러 단어와 상황으로 반복 노출하면 학습이 강화됩니다.
-            </p>
+            {educationContent ? (
+              <>
+                <p>
+                  <span className="font-semibold">📍 모델링:</span> {educationContent.modeling}
+                </p>
+                <p>
+                  <span className="font-semibold">📍 확장:</span> {educationContent.expansion}
+                </p>
+                <p>
+                  <span className="font-semibold">📍 반복:</span> {educationContent.repetition}
+                </p>
+              </>
+            ) : (
+              <>
+                <p>
+                  <span className="font-semibold">📍 모델링:</span> 아이의 발화를
+                  바로 수정하지 마세요. 대신 아이가 말한 것을 더 완성된 형태로
+                  자연스럽게 다시 말해주세요.
+                </p>
+                <p>
+                  <span className="font-semibold">📍 확장:</span> 아이의 한 단어에
+                  의미 있는 단어들을 더해서 더 긴 표현으로 확장해 들려주세요.
+                </p>
+                <p>
+                  <span className="font-semibold">📍 반복:</span> 같은 개념을
+                  여러 단어와 상황으로 반복 노출하면 학습이 강화됩니다.
+                </p>
+              </>
+            )}
           </div>
         </div>
       </div>
