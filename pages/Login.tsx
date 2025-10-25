@@ -92,14 +92,14 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-background px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mx-auto flex min-h-[80vh] max-w-md items-center justify-center">
-        <Card className="w-full border-border/70 bg-background/95 shadow-xl">
+    <div className="min-h-screen w-full bg-gradient-to-br from-[#FFF9F4] via-[#FEEFF7] to-[#F7F6FF] px-4 py-12 sm:px-6 lg:px-8">
+      <div className="mx-auto flex min-h-[70vh] max-w-md items-center justify-center">
+        <Card className="w-full border border-[#F4D7E8] bg-white/85 shadow-2xl backdrop-blur-sm">
           <CardHeader className="space-y-2 text-center">
-            <CardTitle className="text-2xl font-semibold text-foreground">
+            <CardTitle className="text-3xl font-extrabold text-[#E17AA4]">
               로그인
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-slate-600">
               등록한 이메일과 비밀번호로 계속 진행하세요.
             </CardDescription>
           </CardHeader>
@@ -134,24 +134,28 @@ export default function Login() {
                 />
               </div>
 
-              <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground">
+              <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500">
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="remember"
                     checked={remember}
                     onCheckedChange={(v) => setRemember(Boolean(v))}
                   />
-                  <Label htmlFor="remember" className="text-xs font-medium text-muted-foreground">
+                  <Label htmlFor="remember" className="text-xs font-medium text-slate-600">
                     로그인 상태 유지
                   </Label>
                 </div>
               </div>
 
               {error && (
-                <p className="text-sm font-medium text-destructive">{error}</p>
+                <p className="text-sm font-medium text-[#E17AA4]">{error}</p>
               )}
 
-              <Button type="submit" className="w-full text-sm font-semibold" disabled={loading}>
+              <Button
+                type="submit"
+                className="w-full rounded-full bg-[#E17AA4] text-sm font-semibold text-white transition hover:bg-[#d0648f]"
+                disabled={loading}
+              >
                 {loading ? "처리 중..." : "We:Grow 시작하기"}
               </Button>
             </form>
@@ -161,14 +165,16 @@ export default function Login() {
               <Button
                 variant="link"
                 type="button"
-                className="h-auto p-0 text-sm font-semibold"
+                className="h-auto p-0 text-sm font-semibold text-[#E17AA4] hover:text-[#d0648f]"
                 asChild
               >
                 <Link to="/register">가입하기</Link>
               </Button>
             </p>
             <div className="pt-2 text-center text-xs text-muted-foreground">
-              <Link to="/" className="transition hover:text-primary">홈으로</Link>
+              <Link to="/" className="transition hover:text-[#E17AA4]">
+                홈으로
+              </Link>
             </div>
           </CardContent>
         </Card>
