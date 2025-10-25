@@ -3,16 +3,8 @@ import {
   Upload as UploadIcon,
   X,
   CheckCircle,
-  Bot,
-  Volume2,
-  Sparkles,
-  Waves,
-  ShieldCheck,
-  Share2,
 } from "lucide-react";
-import { useMemo, useRef, useState, useEffect } from "react";
-import { RealtimeAudio } from "@/components/RealtimeAudio";
-import { TTSPlayer } from "@/components/TTSPlayer";
+import { useRef, useState, useEffect } from "react";
 import { authenticatedFetch } from "@/lib/api";
 
 interface AudioSample {
@@ -39,7 +31,7 @@ interface Statistics {
 
 export default function Upload() {
   const [dragActive, setDragActive] = useState(false);
-  const [activeTab, setActiveTab] = useState<'upload' | 'realtime' | 'tts'>('upload');
+  const [activeTab, setActiveTab] = useState<'upload'>('upload');
   const [samples, setSamples] = useState<AudioSample[]>([]);
   const [statistics, setStatistics] = useState<Statistics>({
     robotCollected: 0,
@@ -51,9 +43,6 @@ export default function Upload() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadMessage, setUploadMessage] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
-  const [duration, setDuration] = useState("");
-  const [notes, setNotes] = useState("");
-  const [source, setSource] = useState<"parent" | "robot">("parent");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -102,16 +91,7 @@ export default function Upload() {
     try {
       const formData = new FormData();
       formData.append("audioFile", file);
-
-      if (duration.trim() !== "") {
-        formData.append("duration", duration.trim());
-      }
-
-      formData.append("source", source);
-
-      if (notes.trim() !== "") {
-        formData.append("notes", notes.trim());
-      }
+      formData.append("source", "parent");
 
       const response = await authenticatedFetch('/api/audio/upload', {
         method: 'POST',
@@ -166,15 +146,7 @@ export default function Upload() {
     }
   };
 
-  const activeTabTitle = useMemo(() => {
-    if (activeTab === "realtime") {
-      return "실시간 통신";
-    }
-    if (activeTab === "tts") {
-      return "TTS 테스트";
-    }
-    return "파일 업로드";
-  }, [activeTab]);
+  const activeTabTitle = "파일 업로드";
 
   if (loading) {
     return (
@@ -224,47 +196,7 @@ export default function Upload() {
                   샘플 데이터 업로드
                 </p>
               </div>
-              <div className="flex space-x-1 bg-[#F8F4FF] p-1 rounded-full">
-                <button
-                  onClick={() => setActiveTab("upload")}
-                  className={`flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold transition ${
-                    activeTab === "upload"
-                      ? "bg-white text-[#A678E3] shadow-sm"
-                      : "text-slate-500 hover:text-[#A678E3]"
-                  }`}
-                >
-                  업로드
-                </button>
-                <button
-                  onClick={() => setActiveTab("realtime")}
-                  className={`flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold transition ${
-                    activeTab === "realtime"
-                      ? "bg-white text-[#A678E3] shadow-sm"
-                      : "text-slate-500 hover:text-[#A678E3]"
-                  }`}
-                >
-                  실시간
-                </button>
-                <button
-                  onClick={() => setActiveTab("tts")}
-                  className={`flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold transition ${
-                    activeTab === "tts"
-                      ? "bg-white text-[#A678E3] shadow-sm"
-                      : "text-slate-500 hover:text-[#A678E3]"
-                  }`}
-                >
-                  TTS
-                </button>
-              </div>
             </div>
-
-            {activeTab === 'realtime' && (
-              <RealtimeAudio />
-            )}
-
-            {activeTab === 'tts' && (
-              <TTSPlayer defaultText="안녕하세요! 로봇과 대화해보세요." />
-            )}
 
             {activeTab === "upload" && (
               <div
@@ -324,40 +256,6 @@ export default function Upload() {
                     onChange={(event) => handleFiles(event.target.files)}
                   />
                 </div>
-                <div className="mt-8 grid gap-4 text-left sm:grid-cols-3">
-                  <label className="space-y-2 text-sm text-slate-600">
-                    <span className="font-semibold text-[#A678E3]">녹음 길이 (초)</span>
-                    <input
-                      type="number"
-                      min="0"
-                      placeholder="예: 12"
-                      value={duration}
-                      onChange={(event) => setDuration(event.target.value)}
-                      className="w-full rounded-2xl border border-[#F4D7E8] bg-white px-4 py-2 text-sm focus:border-[#E17AA4] focus:outline-none"
-                    />
-                  </label>
-                  <label className="space-y-2 text-sm text-slate-600">
-                    <span className="font-semibold text-[#A678E3]">수집 방식</span>
-                    <select
-                      value={source}
-                      onChange={(event) => setSource(event.target.value as "parent" | "robot")}
-                      className="w-full rounded-2xl border border-[#F4D7E8] bg-white px-4 py-2 text-sm focus:border-[#E17AA4] focus:outline-none"
-                    >
-                      <option value="parent">부모 업로드</option>
-                      <option value="robot">로봇 자동 수집</option>
-                    </select>
-                  </label>
-                  <label className="space-y-2 text-sm text-slate-600 sm:col-span-3">
-                    <span className="font-semibold text-[#A678E3]">메모 (선택)</span>
-                    <input
-                      type="text"
-                      placeholder="예: 잠들기 전 옹알이"
-                      value={notes}
-                      onChange={(event) => setNotes(event.target.value)}
-                      className="w-full rounded-2xl border border-[#F4D7E8] bg-white px-4 py-2 text-sm focus:border-[#E17AA4] focus:outline-none"
-                    />
-                  </label>
-                </div>
                 <div className="mt-6 space-y-2 text-sm">
                   {uploadMessage && (
                     <p className="rounded-2xl bg-[#E8DAFA] px-4 py-3 font-semibold text-[#6E3EC1]">{uploadMessage}</p>
@@ -398,11 +296,10 @@ export default function Upload() {
                       </p>
                     </div>
                     <span
-                      className={`inline-flex items-center gap-1 self-start rounded-full px-3 py-1 text-xs font-semibold ${
-                        sample.status === "분석 완료"
+                      className={`inline-flex items-center gap-1 self-start rounded-full px-3 py-1 text-xs font-semibold ${sample.status === "분석 완료"
                           ? "bg-[#E8DAFA] text-[#6E3EC1]"
                           : "bg-[#FFE5F1] text-[#C9367C]"
-                      }`}
+                        }`}
                     >
                       {sample.status === "분석 완료" && <CheckCircle size={14} />}
                       {sample.status}
@@ -432,13 +329,13 @@ export default function Upload() {
                       className="flex-1 rounded-full border border-[#F4D7E8] bg-white px-4 py-2 text-sm text-slate-600 placeholder:text-slate-400 focus:border-[#E17AA4] focus:outline-none"
                     />
                     <div className="flex gap-2">
-                      <button 
+                      <button
                         onClick={() => handleReanalyzeSample(sample.id)}
                         className="inline-flex items-center justify-center gap-1 rounded-full border border-[#A678E3]/40 px-4 py-2 text-xs font-semibold text-[#A678E3] transition hover:bg-[#FDF5FF]"
                       >
                         분석 다시 실행
                       </button>
-                      <button 
+                      <button
                         onClick={() => handleDeleteSample(sample.id)}
                         className="inline-flex items-center justify-center gap-1 rounded-full border border-[#BAABBA]/60 px-4 py-2 text-xs font-semibold text-[#706478] transition hover:bg-white"
                       >
