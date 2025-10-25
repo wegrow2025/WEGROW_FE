@@ -2,19 +2,19 @@ import { ArrowRight, Play } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export default function Landing() {
+  const logoSrc = "/DodamLogo.png"
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#FFF9F4] via-[#FEEFF7] to-[#F7F6FF] text-slate-900">
       {/* Navigation */}
-      <nav className="flex items-center justify-between h-16 px-4 sm:px-8 border-b border-[#F4D7E8] bg-white/80 backdrop-blur-md sticky top-0 z-40">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-[#F7B5C3] shadow-sm flex items-center justify-center text-2xl">
-            🐭
-          </div>
-          <div className="flex flex-col">
-            <span className="text-xl font-extrabold tracking-tight">도담</span>
-            <span className="text-xs text-slate-500">말놀이 성장 파트너</span>
-          </div>
-        </div>
+      <nav className="flex items-center justify-between h-16 px-4 sm:px-36 border-b border-[#F4D7E8] bg-white/80 backdrop-blur-md sticky top-0 z-40">
+          <Link to="/" className="flex items-center">
+            <img
+              src={logoSrc}
+              alt="도담 로고"
+              className="h-20"
+              loading="eager"
+            />
+          </Link>
         <div className="flex items-center gap-4 text-sm font-medium">
           <Link
             to="/login"
@@ -51,9 +51,9 @@ export default function Landing() {
               >
                 무료로 시작하기 <ArrowRight size={20} />
               </Link>
-              <button className="px-8 py-3 rounded-full border-2 border-[#E17AA4] text-[#E17AA4] font-semibold hover:bg-[#FDF2F7] transition flex items-center justify-center gap-2">
+              {/* <button className="px-8 py-3 rounded-full border-2 border-[#E17AA4] text-[#E17AA4] font-semibold hover:bg-[#FDF2F7] transition flex items-center justify-center gap-2">
                 데모 보기 <Play size={20} />
-              </button>
+              </button> */}
             </div>
           </div>
           <div className="bg-white rounded-3xl border border-[#F4D7E8] shadow-xl p-8 relative overflow-hidden">
@@ -228,7 +228,7 @@ export default function Landing() {
       </section>
 
       {/* Parent Value */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-8 py-16 sm:py-24">
+      {/* <section className="max-w-6xl mx-auto px-4 sm:px-8 py-16 sm:py-24">
         <h2 className="text-3xl font-bold text-center text-slate-900 mb-12">부모가 느끼는 변화</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[ 
@@ -257,10 +257,10 @@ export default function Landing() {
             </div>
           ))}
         </div>
-      </section>
+      </section> */}
 
       {/* CTA */}
-      <section className="px-4 sm:px-8 pb-24">
+      <section className="px-4 sm:px-8 pb-24 py-28">
         <div className="max-w-5xl mx-auto rounded-3xl bg-gradient-to-r from-[#FDE4EC] via-[#F5D7FF] to-[#DDE4FF] text-slate-900 text-center py-16 px-8 shadow-xl">
           <h2 className="text-3xl sm:text-4xl font-extrabold mb-4">아이의 언어 여정, 지금 도담과 시작하세요</h2>
           <p className="text-lg text-slate-700 max-w-2xl mx-auto mb-8">
@@ -273,12 +273,12 @@ export default function Landing() {
             >
               무료로 시작하기 →
             </Link>
-            <Link
+            {/* <Link
               to="/register"
               className="px-8 py-3 rounded-full border-2 border-white/60 bg-white/30 text-slate-800 font-semibold hover:bg-white/50 transition"
             >
               도담 소식 받기
-            </Link>
+            </Link> */}
           </div>
         </div>
       </section>
@@ -288,13 +288,26 @@ export default function Landing() {
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-8 mb-8">
             <div className="space-y-3">
-              <div className="flex items-center gap-2">
+              {/* <div className="flex items-center gap-2">
                 <div className="w-9 h-9 rounded-full bg-[#F7B5C3] flex items-center justify-center text-xl">🐭</div>
                 <span className="font-bold text-slate-900">도담</span>
               </div>
               <p className="text-sm leading-relaxed">
                 아이의 언어 시도를 기다려주고 확장해주는 맞춤형 말놀이 로봇 친구.
+              </p> */}
+              <Link to="/" className="flex items-center">
+            <p className="text-sm leading-relaxed">
+                AI 말벗 로봇 도담
               </p>
+              <img
+              src={logoSrc}
+              alt="도담 로고"
+              className="h-20"
+              loading="eager"
+            />
+            
+          </Link>
+          
             </div>
             <div>
               <h4 className="font-semibold text-slate-900 mb-3 text-sm">제품</h4>
