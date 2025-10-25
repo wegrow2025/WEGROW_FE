@@ -10,8 +10,8 @@ export type PdfMake = {
   fonts?: Record<string, unknown>;
 };
 
-const PDFMAKE_MODULE_URL =
-  "https://cdn.jsdelivr.net/npm/pdfmake@0.2.10/build/pdfmake.min.js?module";
+const PDFMAKE_SCRIPT_URL =
+  "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js";
 
 const FONT_SOURCES = [
   {
@@ -32,23 +32,31 @@ let fontsRegistered = false;
 
 export async function loadPdfMake(): Promise<PdfMake> {
   if (!pdfMakePromise) {
-    pdfMakePromise = import(/* @vite-ignore */ PDFMAKE_MODULE_URL).then(
-      (module) => {
-        const pdfMakeExport = (module.default ?? module) as PdfMake;
+    pdfMakePromise = new Promise((resolve, reject) => {
+      // Check if pdfMake is already loaded
+      if (typeof window !== 'undefined' && (window as any).pdfMake) {
+        resolve((window as any).pdfMake as PdfMake);
+        return;
+      }
 
-        if (Object.isExtensible(pdfMakeExport)) {
-          return pdfMakeExport;
+      const script = document.createElement('script');
+      script.src = PDFMAKE_SCRIPT_URL;
+      script.async = true;
+      
+      script.onload = () => {
+        if ((window as any).pdfMake) {
+          resolve((window as any).pdfMake as PdfMake);
+        } else {
+          reject(new Error('pdfMake library failed to load'));
         }
-
-        const clonedPdfMake: PdfMake = {
-          ...pdfMakeExport,
-          vfs: { ...(pdfMakeExport.vfs ?? {}) },
-          fonts: { ...(pdfMakeExport.fonts ?? {}) },
-        };
-
-        return clonedPdfMake;
-      },
-    );
+      };
+      
+      script.onerror = () => {
+        reject(new Error('Failed to load pdfMake script'));
+      };
+      
+      document.head.appendChild(script);
+    });
   }
 
   return pdfMakePromise;

@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState, useRef } from "react";
 import { Layout } from "@/components/Layout";
 import {
   Sparkles,
@@ -11,8 +11,8 @@ import {
   Play,
 } from "lucide-react";
 import { toast } from "sonner";
-import { createGrowthReportDocument } from "@/lib/growth-report-pdf";
-import { ensurePdfMakeFonts, loadPdfMake } from "@/lib/pdfmake";
+import html2canvas from "html2canvas";
+import { jsPDF } from "jspdf";
 
 const progressMetrics = [
   {
@@ -144,55 +144,88 @@ const recommendations = [
 
 export default function Growth() {
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   const handleDownloadPdf = useCallback(async () => {
+    if (!contentRef.current) {
+      toast.error("PDF로 변환할 콘텐츠를 찾을 수 없어요.");
+      return;
+    }
+
     setIsGeneratingPdf(true);
 
     try {
-      const pdfMake = await loadPdfMake();
-      await ensurePdfMakeFonts(pdfMake);
+      // 잠시 대기하여 UI 업데이트
+      await new Promise(resolve => setTimeout(resolve, 100));
 
-      const docDefinition = createGrowthReportDocument({
-        progressMetrics,
-        dailyMoments,
-        stageGuides,
-        recommendations,
+      // html2canvas로 화면 캡처
+      const canvas = await html2canvas(contentRef.current, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
       });
 
-      const blob = await new Promise<Blob>((resolve, reject) => {
-        try {
-          pdfMake.createPdf(docDefinition).getBlob((generatedBlob) => {
-            if (generatedBlob && generatedBlob.size > 0) {
-              resolve(generatedBlob);
-            } else {
-              reject(new Error("생성된 PDF 데이터가 비어있어요."));
-            }
-          });
-        } catch (error) {
-          reject(
-            error instanceof Error
-              ? error
-              : new Error("PDF 생성 중 알 수 없는 오류가 발생했어요."),
-          );
-        }
+      // 캡처된 이미지를 PDF로 변환
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
       });
 
-      const objectUrl = URL.createObjectURL(blob);
-      const anchor = document.createElement("a");
-      anchor.href = objectUrl;
-      anchor.download = "wegrow-growth-report.pdf";
-      anchor.rel = "noopener";
-      document.body.appendChild(anchor);
-      anchor.click();
-      document.body.removeChild(anchor);
-      URL.revokeObjectURL(objectUrl);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      
+      // A4 용지 크기 (mm): 210 x 297
+      const margin = 0; // 여백 없이 꽉 채우기
+      const contentWidth = pdfWidth - (margin * 2);
+      const contentHeight = pdfHeight - (margin * 2);
 
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      
+      // A4 용지에 맞게 비율 조정
+      const ratio = contentWidth / imgWidth;
+      const scaledHeight = imgHeight * ratio;
+
+      let yPosition = margin;
+      let heightLeft = scaledHeight;
+
+      // 첫 페이지
+      pdf.addImage(
+        imgData,
+        'PNG',
+        margin,
+        yPosition,
+        contentWidth,
+        scaledHeight
+      );
+
+      heightLeft -= contentHeight;
+
+      // 추가 페이지가 필요한 경우
+      while (heightLeft > 0) {
+        yPosition = -(scaledHeight - heightLeft) + margin;
+        pdf.addPage();
+        pdf.addImage(
+          imgData,
+          'PNG',
+          margin,
+          yPosition,
+          contentWidth,
+          scaledHeight
+        );
+        heightLeft -= contentHeight;
+      }
+
+      // PDF 저장
+      pdf.save('wegrow-growth-report.pdf');
+      
       toast.success("성장 리포트를 PDF로 저장했어요!");
     } catch (error) {
       console.error("Failed to generate PDF", error);
-      toast.error(
-        "PDF 생성에 실패했어요. 네트워크 연결을 확인한 뒤 다시 시도해주세요.",
-      );
+      toast.error("PDF 생성에 실패했어요. 다시 시도해주세요.");
     } finally {
       setIsGeneratingPdf(false);
     }
@@ -200,7 +233,7 @@ export default function Growth() {
 
   return (
     <Layout showNav={true}>
-      <div className="max-w-6xl mx-auto px-4 sm:px-8 py-4 space-y-6">
+      <div ref={contentRef} className="max-w-6xl mx-auto px-4 sm:px-8 py-4 space-y-6">
         <div className="space-y-16">
           {/* Hero / Snapshot */}
           <section className="relative overflow-hidden rounded-[40px] bg-gradient-to-br from-[#FDE4EC] via-[#F4E5FB] to-[#E0F1FF] p-8 sm:p-12 shadow-xl">
@@ -386,23 +419,10 @@ export default function Growth() {
             type="button"
             onClick={handleDownloadPdf}
             disabled={isGeneratingPdf}
-            className="inline-flex items-center gap-2 rounded-full bg-[#A678E3] px-5 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-[#8f5cd1] focus:outline-none focus:ring-2 focus:ring-[#A678E3]/40 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-[#CDB7F2]"
-            aria-live="polite"
-            aria-busy={isGeneratingPdf}
+            className="inline-flex items-center gap-2 rounded-full bg-[#A678E3] px-5 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-[#8f5cd1] focus:outline-none focus:ring-2 focus:ring-[#A678E3]/40 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {isGeneratingPdf ? (
-              <>
-                <span className="inline-flex h-4 w-4 items-center justify-center">
-                  <span className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                </span>
-                <span>PDF 생성 중...</span>
-              </>
-            ) : (
-              <>
-                <Download size={16} />
-                <span>PDF로 저장하기</span>
-              </>
-            )}
+            <Download size={16} />
+            <span>PDF로 저장하기</span>
           </button>
         </div>
         </div>

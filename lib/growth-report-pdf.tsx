@@ -59,6 +59,26 @@ type PdfContent =
       pageBreak?: "before" | "after" | "both";
       color?: string;
       canvas?: PdfMakeCanvasRect[];
+      background?: string;
+      fillColor?: string;
+      width?: string | number;
+      fontSize?: number;
+      bold?: boolean;
+      table?: {
+        widths?: (string | number)[];
+        body: PdfContent[][];
+      };
+      layout?: string | {
+        hLineWidth?: () => number;
+        vLineWidth?: () => number;
+        hLineColor?: () => string;
+        vLineColor?: () => string;
+        fillColor?: (rowIndex: number) => string | null;
+        paddingLeft?: () => number;
+        paddingRight?: () => number;
+        paddingTop?: () => number;
+        paddingBottom?: () => number;
+      };
     };
 
 type PdfDocumentDefinition = {
@@ -75,9 +95,9 @@ const PDF_SCALE = 0.8;
 const scale = (value: number) =>
   Math.round((value * PDF_SCALE + Number.EPSILON) * 100) / 100;
 
-const PROGRESS_BAR_WIDTH = scale(200);
-const PROGRESS_BAR_HEIGHT = scale(6);
-const PROGRESS_BAR_RADIUS = scale(3);
+const PROGRESS_BAR_WIDTH = scale(250);
+const PROGRESS_BAR_HEIGHT = scale(8);
+const PROGRESS_BAR_RADIUS = scale(4);
 
 const createProgressBar = (metric: ProgressMetric): PdfContent => {
   const clampedProgress = Math.min(Math.max(metric.progress, 0), 100);
@@ -90,8 +110,9 @@ const createProgressBar = (metric: ProgressMetric): PdfContent => {
     w: PROGRESS_BAR_WIDTH,
     h: PROGRESS_BAR_HEIGHT,
     r: PROGRESS_BAR_RADIUS,
-    color: "#E5E7EB",
+    color: "#F3F4F6",
     lineColor: "#E5E7EB",
+    lineWidth: 0.5,
   };
 
   const progressRect: PdfMakeCanvasRect = {
@@ -107,7 +128,28 @@ const createProgressBar = (metric: ProgressMetric): PdfContent => {
 
   return {
     canvas: [baseRect, progressRect],
-    margin: [0, scale(6), 0, 0],
+    margin: [0, scale(8), 0, 0],
+  };
+};
+
+const createColoredBox = (content: PdfContent[], color: string, borderColor?: string): PdfContent => {
+  return {
+    table: {
+      widths: ['*'],
+      body: [[{ stack: content, margin: [scale(12), scale(10), scale(12), scale(10)] }]]
+    },
+    layout: {
+      hLineWidth: () => 1,
+      vLineWidth: () => 1,
+      hLineColor: () => borderColor || color,
+      vLineColor: () => borderColor || color,
+      fillColor: () => `${color}15`,
+      paddingLeft: () => 0,
+      paddingRight: () => 0,
+      paddingTop: () => 0,
+      paddingBottom: () => 0,
+    },
+    margin: [0, 0, 0, scale(12)],
   };
 };
 
@@ -124,53 +166,57 @@ export const createGrowthReportDocument = (
       : 0,
   );
 
-  const metricBlocks: PdfContent[] = data.progressMetrics.map((metric) => ({
-    stack: [
-      { text: metric.label, style: "metricTitle", color: metric.color },
-      { text: metric.value, style: "metricValue" },
+  const metricBlocks: PdfContent[] = data.progressMetrics.map((metric) => 
+    createColoredBox([
+      { 
+        columns: [
+          { text: metric.label, style: "metricTitle", color: metric.color, width: '*' },
+          { text: `${metric.progress}%`, style: "metricValue", alignment: 'right', width: 'auto' }
+        ]
+      },
+      { text: metric.value, style: "metricValueLarge", margin: [0, scale(4), 0, scale(2)] },
       { text: metric.helper, style: "metricHelper" },
-      { text: metric.trend, style: "metricTrend" },
       createProgressBar(metric),
-    ],
-    margin: [0, 0, 0, scale(14)],
-  }));
+      { text: metric.trend, style: "metricTrend", margin: [0, scale(6), 0, 0] },
+    ], metric.color, metric.color)
+  );
 
-  const stageBlocks: PdfContent[] = data.stageGuides.map((stage) => ({
-    stack: [
-      { text: stage.stage, style: "guideStage", color: stage.color },
-      { text: stage.summary, style: "guideSummary" },
+  const stageBlocks: PdfContent[] = data.stageGuides.map((stage) =>
+    createColoredBox([
+      { text: `📍 ${stage.stage}`, style: "guideStage", color: stage.color },
+      { text: stage.summary, style: "guideSummary", margin: [0, scale(4), 0, scale(8)] },
       {
         ul: stage.actions.map((action) => ({ text: action })),
-        margin: [0, 0, 0, scale(6)],
         style: "guideList",
+        margin: [0, 0, 0, scale(8)],
       },
-      { text: stage.example, style: "guideExample" },
-    ],
-    margin: [0, 0, 0, scale(12)],
-  }));
+      createColoredBox([
+        { text: stage.example, style: "guideExample" }
+      ], '#FFFFFF', '#E5E7EB'),
+    ], stage.color, stage.color)
+  );
 
-  const diaryBlocks: PdfContent[] = data.dailyMoments.map((moment) => ({
-    stack: [
+  const diaryBlocks: PdfContent[] = data.dailyMoments.map((moment) =>
+    createColoredBox([
       {
         columns: [
-          { text: moment.time, style: "diaryHeader" },
-          { text: moment.focus, style: "diaryHeader", alignment: "right" },
-        ],
+          { text: `🕐 ${moment.time}`, style: "diaryHeader", width: '*' },
+          { text: moment.focus, style: "diaryFocus", alignment: 'right', width: 'auto' }
+        ]
       },
-      { text: moment.script, style: "diaryScript", margin: [0, scale(4), 0, 0] },
-    ],
-    margin: [0, 0, 0, scale(12)],
-  }));
+      { text: moment.script, style: "diaryScript", margin: [0, scale(6), 0, 0] },
+    ], '#FFF7FB', '#F4D7E8')
+  );
 
   const recommendationBlocks: PdfContent[] = data.recommendations.map(
-    (recommendation) => ({
-      stack: [
+    (recommendation) =>
+      createColoredBox([
         { text: recommendation.title, style: "recommendationTitle" },
-        { text: recommendation.detail, style: "recommendationDetail" },
-        { text: recommendation.tip, style: "recommendationTip" },
-      ],
-      margin: [0, 0, 0, scale(12)],
-    }),
+        { text: recommendation.detail, style: "recommendationDetail", margin: [0, scale(4), 0, scale(6)] },
+        createColoredBox([
+          { text: recommendation.tip, style: "recommendationTip" }
+        ], '#FFFFFF', '#A678E3'),
+      ], '#F4E5FB', '#E7D7FA')
   );
 
   const dailySectionHeader: PdfContent = {
@@ -184,53 +230,86 @@ export const createGrowthReportDocument = (
   }
 
   const content: PdfContent[] = [
-    { text: "이번 주 우리 아이 성장 보고서 💕", style: "badge" },
-    {
-      text: "말로 표현하는 즐거움이 쑥쑥 자라는 중이에요!",
-      style: "heading",
-    },
-    {
-      text: "이번 주에는 아이가 어떤 말을 배웠을까요? 도담이가 관찰한 변화를 함께 살펴봐요.",
-      style: "subheading",
-    },
-    {
-      text: `평균 진행률 ${averageProgress}% 수준으로 차근차근 성장하고 있어요. 아이가 들려주는 새로운 말들을 계속 응원해 주세요!`,
-      style: "sectionSubtitle",
-      margin: [0, scale(12), 0, scale(20)],
-    },
+    // 헤더 박스
+    createColoredBox([
+      { text: "이번 주 우리 아이 성장 보고서 💕", style: "badge", alignment: 'center' },
+      {
+        text: "말로 표현하는 즐거움이 쑥쑥 자라는 중이에요!",
+        style: "heading",
+        alignment: 'center',
+        margin: [0, scale(6), 0, scale(4)],
+      },
+      {
+        text: "이번 주에는 아이가 어떤 말을 배웠을까요? 도담이가 관찰한 변화를 함께 살펴봐요.",
+        style: "subheading",
+        alignment: 'center',
+      },
+    ], '#FDE4EC', '#F4D7E8'),
+    
+    // 평균 진행률 카드
+    createColoredBox([
+      {
+        columns: [
+          {
+            width: '*',
+            stack: [
+              { text: '전체 성장 진행률', style: 'sectionSubtitle', color: '#A678E3' },
+              { text: `${averageProgress}%`, style: 'metricValueLarge', color: '#A678E3', margin: [0, scale(4), 0, 0] },
+            ]
+          },
+          {
+            width: 'auto',
+            text: '📈',
+            fontSize: scale(32),
+            margin: [0, scale(4), 0, 0],
+          }
+        ]
+      },
+      { text: '아이가 들려주는 새로운 말들을 계속 응원해 주세요!', style: 'sectionSubtitle', margin: [0, scale(8), 0, 0] },
+    ], '#F4E5FB', '#E7D7FA'),
   ];
 
   if (metricBlocks.length) {
-    content.push({ text: "성장 지표 한눈에 보기", style: "sectionTitle" });
+    content.push({ 
+      text: "📊 성장 지표 한눈에 보기", 
+      style: "sectionTitle",
+      margin: [0, scale(8), 0, scale(12)],
+    });
     content.push(...metricBlocks);
   }
 
   if (stageBlocks.length) {
     content.push({
-      text: "발달 단계 가이드",
+      text: "🎯 발달 단계 가이드",
       style: "sectionTitle",
-      margin: [0, scale(8), 0, scale(4)],
+      margin: [0, scale(16), 0, scale(12)],
     });
     content.push(...stageBlocks);
   }
 
   if (diaryBlocks.length) {
-    content.push(dailySectionHeader);
-    content.push(...diaryBlocks);
     content.push({
-      text: "아이의 목소리는 도담 타임라인에서 언제든 다시 들어볼 수 있어요.",
-      style: "sectionSubtitle",
-      margin: [0, 0, 0, scale(20)],
+      text: "💬 오늘 나눈 따뜻한 대화들",
+      style: "sectionTitle",
+      margin: [0, scale(16), 0, scale(12)],
+      pageBreak: metricBlocks.length || stageBlocks.length ? "before" : undefined,
     });
+    content.push(...diaryBlocks);
+    content.push(createColoredBox([
+      { text: "💡 아이의 목소리는 도담 타임라인에서 언제든 다시 들어볼 수 있어요.", style: "sectionSubtitle" }
+    ], '#E0F1FF', '#7EC4CF'));
   }
 
   if (recommendationBlocks.length) {
-    content.push({ text: "이번 주 부모님을 위한 제안", style: "sectionTitle" });
-    content.push(...recommendationBlocks);
-    content.push({
-      text: "작고 꾸준한 대화 습관이 아이의 언어 자신감을 단단하게 키워줘요.",
-      style: "sectionSubtitle",
+    content.push({ 
+      text: "💝 이번 주 부모님을 위한 제안", 
+      style: "sectionTitle",
+      margin: [0, scale(16), 0, scale(12)],
     });
+    content.push(...recommendationBlocks);
+    content.push(createColoredBox([
+      { text: "✨ 작고 꾸준한 대화 습관이 아이의 언어 자신감을 단단하게 키워줘요.", style: "sectionSubtitle" }
+    ], '#FFF7FB', '#F4D7E8'));
   }
 
   return {
@@ -244,42 +323,43 @@ export const createGrowthReportDocument = (
       lineHeight: 1.45,
     },
     styles: {
-      badge: { fontSize: scale(10), color: "#E17AA4" },
-      heading: { fontSize: scale(20), bold: true, margin: [0, scale(6), 0, scale(6)] },
-      subheading: { fontSize: scale(12), color: "#6B7280" },
+      badge: { fontSize: scale(12), bold: true, color: "#E17AA4" },
+      heading: { fontSize: scale(22), bold: true, color: "#1F2937" },
+      subheading: { fontSize: scale(11), color: "#6B7280", lineHeight: 1.6 },
       sectionTitle: {
-        fontSize: scale(14),
+        fontSize: scale(16),
         bold: true,
         color: "#1F2937",
-        margin: [0, scale(12), 0, scale(6)],
       },
-      sectionSubtitle: { fontSize: scale(10), color: "#6B7280" },
-      metricTitle: { fontSize: scale(10), bold: true, margin: [0, 0, 0, scale(4)] },
-      metricValue: { fontSize: scale(22), bold: true, margin: [0, 0, 0, scale(4)] },
-      metricHelper: { fontSize: scale(9), color: "#6B7280" },
-      metricTrend: { fontSize: scale(10), color: "#4B5563" },
-      guideStage: { fontSize: scale(10), bold: true, margin: [0, 0, 0, scale(4)] },
-      guideSummary: { fontSize: scale(12), bold: true, margin: [0, 0, 0, scale(6)] },
-      guideList: { fontSize: scale(11), color: "#1F2937" },
+      sectionSubtitle: { fontSize: scale(10), color: "#6B7280", lineHeight: 1.5 },
+      metricTitle: { fontSize: scale(11), bold: true },
+      metricValue: { fontSize: scale(14), bold: true, color: "#1F2937" },
+      metricValueLarge: { fontSize: scale(24), bold: true },
+      metricHelper: { fontSize: scale(9), color: "#6B7280", lineHeight: 1.4 },
+      metricTrend: { fontSize: scale(9), color: "#4B5563", italic: true },
+      guideStage: { fontSize: scale(12), bold: true },
+      guideSummary: { fontSize: scale(13), bold: true, color: "#1F2937", lineHeight: 1.5 },
+      guideList: { fontSize: scale(10), color: "#374151", lineHeight: 1.6 },
       guideExample: {
-        fontSize: scale(10),
+        fontSize: scale(9),
         color: "#4B5563",
-        margin: [0, scale(4), 0, 0],
+        lineHeight: 1.5,
+        italic: true,
       },
       diaryHeader: { fontSize: scale(10), bold: true, color: "#DB2777" },
-      diaryScript: { fontSize: scale(11), color: "#374151" },
+      diaryFocus: { fontSize: scale(9), color: "#E17AA4", italic: true },
+      diaryScript: { fontSize: scale(10), color: "#374151", lineHeight: 1.6 },
       recommendationTitle: {
-        fontSize: scale(12),
+        fontSize: scale(13),
         bold: true,
         color: "#A855F7",
-        margin: [0, 0, 0, scale(6)],
       },
       recommendationDetail: {
-        fontSize: scale(11),
+        fontSize: scale(10),
         color: "#374151",
-        margin: [0, 0, 0, scale(6)],
+        lineHeight: 1.6,
       },
-      recommendationTip: { fontSize: scale(10), color: "#6B7280" },
+      recommendationTip: { fontSize: scale(9), color: "#7C3AED", italic: true },
     },
     content,
   };
