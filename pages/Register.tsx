@@ -11,24 +11,23 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAuth } from "@/contexts/AuthContext";
 
-type DemoUser = {
-  name: string;
-  email: string;
-  password: string; // 시연용: 실제 배포에선 해시/서버 저장 필수
-};
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
 export default function Register() {
   const navigate = useNavigate();
+  const { setCurrentUser } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [pw, setPw] = useState("");
   const [pw2, setPw2] = useState("");
+  const [childAge, setChildAge] = useState("");
   const [agree, setAgree] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
@@ -39,30 +38,71 @@ export default function Register() {
     if (pw.length < 8)
       return setError("비밀번호는 8자 이상으로 설정해주세요.");
     if (pw !== pw2) return setError("비밀번호가 일치하지 않습니다.");
+    const parsedChildAge = Number(childAge);
+    if (!childAge.trim() || Number.isNaN(parsedChildAge) || parsedChildAge <= 0)
+      return setError("아이의 월령을 숫자로 입력해주세요.");
     if (!agree) return setError("서비스 약관과 개인정보 처리방침에 동의해주세요.");
 
     setLoading(true);
 
-    // 시연용: 기존 유저 중복 체크
-    const raw = localStorage.getItem("wegrow-users") || "[]";
-    const users: DemoUser[] = JSON.parse(raw);
-    const exists = users.some((u) => u.email === email);
-    if (exists) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          email,
+          password: pw,
+          childAge: parsedChildAge,
+          name: name.trim(),
+        }),
+      });
+
+      const payload = await response.json().catch(() => null);
+
+      if (!response.ok) {
+        const message =
+          (payload as { message?: string } | null)?.message ||
+          "회원가입 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
+        throw new Error(message);
+      }
+
+      const userData = (payload as { user?: unknown } | null)?.user ?? payload;
+
+      if (userData && typeof userData === "object") {
+        const candidate = userData as Record<string, unknown>;
+        setCurrentUser({
+          name: typeof candidate.name === "string" ? candidate.name : name.trim(),
+          email: typeof candidate.email === "string" ? candidate.email : email,
+          childAge:
+            typeof candidate.childAge === "number"
+              ? candidate.childAge
+              : typeof candidate.childAge === "string"
+                ? Number(candidate.childAge)
+                : parsedChildAge,
+          ...candidate,
+        });
+      } else {
+        setCurrentUser({
+          name: name.trim(),
+          email,
+          childAge: parsedChildAge,
+        });
+      }
+
+      navigate("/dashboard");
+    } catch (err) {
+      console.error(err);
+      const message =
+        err instanceof Error
+          ? err.message
+          : "회원가입 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
+      setError(message);
+    } finally {
       setLoading(false);
-      return setError("이미 가입된 이메일입니다. 로그인으로 진행해주세요.");
     }
-
-    const newUser: DemoUser = { name, email, password: pw };
-    users.push(newUser);
-    localStorage.setItem("wegrow-users", JSON.stringify(users));
-
-    // 시연 편의: 자동 로그인 플래그/프로필 저장
-    localStorage.setItem("wegrow-current-user", JSON.stringify({ name, email }));
-    localStorage.setItem("wegrow-login", "true");
-
-    setLoading(false);
-    // 회원가입 완료 후 이동
-    navigate("/dashboard"); // 혹은 "/login"
   };
 
   return (
@@ -104,6 +144,20 @@ export default function Register() {
                   className="placeholder:text-muted-foreground focus:placeholder-transparent"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="child-age">아이 월령</Label>
+                <Input
+                  id="child-age"
+                  type="number"
+                  min={0}
+                  placeholder="18"
+                  required
+                  className="placeholder:text-muted-foreground focus:placeholder-transparent"
+                  value={childAge}
+                  onChange={(e) => setChildAge(e.target.value)}
                 />
               </div>
 
