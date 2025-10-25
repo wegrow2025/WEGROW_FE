@@ -247,7 +247,7 @@ export default function Settings() {
               개인정보 보호
             </a>
           </p>
-          <p>We:Grow © 2025</p>
+          <p>Dodam © 2025</p>
         </div>
       </div>
     </Layout>
