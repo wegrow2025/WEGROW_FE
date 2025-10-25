@@ -107,14 +107,14 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-background px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mx-auto flex min-h-[80vh] max-w-md items-center justify-center">
-        <Card className="w-full border-border/70 bg-background/95 shadow-xl">
+    <div className="min-h-screen w-full bg-gradient-to-br from-[#FFF9F4] via-[#FEEFF7] to-[#F7F6FF] px-4 py-12 sm:px-6 lg:px-8">
+      <div className="mx-auto flex min-h-[70vh] max-w-md items-center justify-center">
+        <Card className="w-full border border-[#F4D7E8] bg-white/85 shadow-2xl backdrop-blur-sm">
           <CardHeader className="space-y-2 text-center">
-            <CardTitle className="text-2xl font-semibold text-foreground">
+            <CardTitle className="text-3xl font-extrabold text-[#E17AA4]">
               회원가입
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-slate-600">
               필요한 정보를 입력하고 We:Grow와 함께 시작해보세요.
             </CardDescription>
           </CardHeader>
@@ -194,7 +194,7 @@ export default function Register() {
               </div>
 
               {/* shadcn Checkbox는 네이티브 input이 아니므로 상태로 직접 검사 */}
-              <div className="flex items-start space-x-3 rounded-md bg-muted/50 p-3 text-xs text-muted-foreground">
+              <div className="flex items-start space-x-3 rounded-2xl border border-[#F4D7E8] bg-[#FFF2F8] p-3 text-xs text-slate-600">
                 <Checkbox
                   id="terms"
                   className="mt-0.5"
@@ -202,18 +202,18 @@ export default function Register() {
                   onCheckedChange={(v) => setAgree(Boolean(v))}
                 />
                 <Label htmlFor="terms" className="flex-1 text-left">
-                  <span className="font-medium text-foreground">서비스 이용 약관</span>과
-                  <span className="font-medium text-foreground"> 개인정보 처리방침</span>에 동의합니다.
+                  <span className="font-medium text-[#E17AA4]">서비스 이용 약관</span>과
+                  <span className="font-medium text-[#E17AA4]"> 개인정보 처리방침</span>에 동의합니다.
                 </Label>
               </div>
 
               {error && (
-                <p className="text-sm font-medium text-destructive">{error}</p>
+                <p className="text-sm font-medium text-[#E17AA4]">{error}</p>
               )}
 
               <Button
                 type="submit"
-                className="w-full text-sm font-semibold"
+                className="w-full rounded-full bg-[#E17AA4] text-sm font-semibold text-white transition hover:bg-[#d0648f]"
                 disabled={loading}
               >
                 {loading ? "처리 중..." : "계정 만들기"}
@@ -225,7 +225,7 @@ export default function Register() {
               <Button
                 variant="link"
                 type="button"
-                className="h-auto p-0 text-sm font-semibold"
+                className="h-auto p-0 text-sm font-semibold text-[#E17AA4] hover:text-[#d0648f]"
                 asChild
               >
                 <Link to="/login">로그인하기</Link>
@@ -233,7 +233,7 @@ export default function Register() {
             </p>
 
             <div className="pt-2 text-center text-xs text-muted-foreground">
-              <Link to="/" className="transition hover:text-primary">
+              <Link to="/" className="transition hover:text-[#E17AA4]">
                 홈으로
               </Link>
             </div>
