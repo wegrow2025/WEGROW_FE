@@ -11,8 +11,6 @@ import {
   Share2,
 } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
-import { RealtimeAudio } from "@/components/RealtimeAudio";
-import { TTSPlayer } from "@/components/TTSPlayer";
 
 export default function Upload() {
   const [dragActive, setDragActive] = useState(false);
@@ -151,22 +149,11 @@ export default function Upload() {
           <div className="rounded-[32px] border border-[#F4D7E8] bg-white/90 p-6 sm:p-8 shadow-lg space-y-6">
             <div className="flex items-center justify-between flex-wrap gap-4">
               <div className="space-y-1">
-                <p className="text-xs font-semibold uppercase tracking-wide text-[#A678E3]">수집 모드</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-[#A678E3]">SAMPLE</p>
                 <h2 className="text-2xl font-bold text-slate-900">{activeTabTitle}</h2>
                 <p className="text-sm text-slate-500">
                   샘플 데이터 업로드
                 </p>
-              </div>
-              <div className="flex space-x-1 bg-[#F8F4FF] p-1 rounded-full">
-                <button
-                  onClick={() => setActiveTab("upload")}
-                  className={`flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold transition ${
-                    activeTab === "upload"
-                      ? "bg-white text-[#A678E3] shadow-sm"
-                      : "text-slate-500 hover:text-[#A678E3]"
-                  }`}
-                >
-                </button>
               </div>
             </div>
 
@@ -194,6 +181,7 @@ export default function Upload() {
                   onClick={() => fileInputRef.current?.click()}
                 >
                   <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-sm mx-auto">
+                    <UploadIcon size={32} className="text-[#E17AA4]" />
                   </div>
                   <div className="space-y-2">
                     <h3 className="text-xl font-semibold text-slate-900">음성 파일을 드래그하거나 클릭해서 선택하세요</h3>
@@ -230,40 +218,6 @@ export default function Upload() {
                     className="hidden"
                     onChange={(event) => handleFiles(event.target.files)}
                   />
-                </div>
-                <div className="mt-8 grid gap-4 text-left sm:grid-cols-3">
-                  <label className="space-y-2 text-sm text-slate-600">
-                    <span className="font-semibold text-[#A678E3]">녹음 길이 (초)</span>
-                    <input
-                      type="number"
-                      min="0"
-                      placeholder="예: 12"
-                      value={duration}
-                      onChange={(event) => setDuration(event.target.value)}
-                      className="w-full rounded-2xl border border-[#F4D7E8] bg-white px-4 py-2 text-sm focus:border-[#E17AA4] focus:outline-none"
-                    />
-                  </label>
-                  <label className="space-y-2 text-sm text-slate-600">
-                    <span className="font-semibold text-[#A678E3]">수집 방식</span>
-                    <select
-                      value={source}
-                      onChange={(event) => setSource(event.target.value as "parent" | "robot")}
-                      className="w-full rounded-2xl border border-[#F4D7E8] bg-white px-4 py-2 text-sm focus:border-[#E17AA4] focus:outline-none"
-                    >
-                      <option value="parent">부모 업로드</option>
-                      <option value="robot">로봇 자동 수집</option>
-                    </select>
-                  </label>
-                  <label className="space-y-2 text-sm text-slate-600 sm:col-span-3">
-                    <span className="font-semibold text-[#A678E3]">메모 (선택)</span>
-                    <input
-                      type="text"
-                      placeholder="예: 잠들기 전 옹알이"
-                      value={notes}
-                      onChange={(event) => setNotes(event.target.value)}
-                      className="w-full rounded-2xl border border-[#F4D7E8] bg-white px-4 py-2 text-sm focus:border-[#E17AA4] focus:outline-none"
-                    />
-                  </label>
                 </div>
                 <div className="mt-6 space-y-2 text-sm">
                   {uploadMessage && (
