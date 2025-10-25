@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { createGrowthReportDocument } from "@/lib/growth-report-pdf";
-import { loadReactPdf } from "@/lib/react-pdf";
+import { ensurePdfMakeFonts, loadPdfMake } from "@/lib/pdfmake";
 
 const progressMetrics = [
   {
@@ -149,20 +149,33 @@ export default function Growth() {
     setIsGeneratingPdf(true);
 
     try {
-      const reactPdf = await loadReactPdf();
-      const pdfDocumentElement = createGrowthReportDocument(reactPdf, {
+      const pdfMake = await loadPdfMake();
+      await ensurePdfMakeFonts(pdfMake);
+
+      const docDefinition = createGrowthReportDocument({
         progressMetrics,
         dailyMoments,
         stageGuides,
         recommendations,
       });
 
-      const instance = reactPdf.pdf(pdfDocumentElement);
-      const blob = await instance.toBlob();
-
-      if (!blob || blob.size === 0) {
-        throw new Error("생성된 PDF 데이터가 비어있어요.");
-      }
+      const blob = await new Promise<Blob>((resolve, reject) => {
+        try {
+          pdfMake.createPdf(docDefinition).getBlob((generatedBlob) => {
+            if (generatedBlob && generatedBlob.size > 0) {
+              resolve(generatedBlob);
+            } else {
+              reject(new Error("생성된 PDF 데이터가 비어있어요."));
+            }
+          });
+        } catch (error) {
+          reject(
+            error instanceof Error
+              ? error
+              : new Error("PDF 생성 중 알 수 없는 오류가 발생했어요."),
+          );
+        }
+      });
 
       const objectUrl = URL.createObjectURL(blob);
       const anchor = document.createElement("a");
