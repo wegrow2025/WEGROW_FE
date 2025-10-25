@@ -1,7 +1,6 @@
 import { Layout } from "@/components/Layout";
 import {
   Upload as UploadIcon,
-  Mic,
   X,
   CheckCircle,
   Bot,
@@ -11,13 +10,78 @@ import {
   ShieldCheck,
   Share2,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { RealtimeAudio } from "@/components/RealtimeAudio";
 import { TTSPlayer } from "@/components/TTSPlayer";
 
 export default function Upload() {
   const [dragActive, setDragActive] = useState(false);
   const [activeTab, setActiveTab] = useState<"upload" | "realtime" | "tts">("upload");
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadMessage, setUploadMessage] = useState<string | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [duration, setDuration] = useState("");
+  const [notes, setNotes] = useState("");
+  const [source, setSource] = useState<"parent" | "robot">("parent");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
+
+  const resetStatusMessages = () => {
+    setUploadMessage(null);
+    setUploadError(null);
+  };
+
+  const handleFiles = async (files: FileList | null) => {
+    if (!files || files.length === 0) {
+      return;
+    }
+
+    const file = files[0];
+
+    resetStatusMessages();
+    setIsUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("audioFile", file);
+
+      if (duration.trim() !== "") {
+        formData.append("duration", duration.trim());
+      }
+
+      formData.append("source", source);
+
+      if (notes.trim() !== "") {
+        formData.append("notes", notes.trim());
+      }
+
+      const response = await fetch(`${API_BASE_URL}/api/audio/upload`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("업로드에 실패했습니다. 다시 시도해주세요.");
+      }
+
+      const result = await response.json().catch(() => undefined);
+      const message =
+        result?.message ?? `${file.name} 파일이 성공적으로 업로드되었습니다.`;
+
+      setUploadMessage(message);
+      fileInputRef.current && (fileInputRef.current.value = "");
+    } catch (error) {
+      console.error("Upload failed", error);
+      setUploadError(
+        error instanceof Error
+          ? error.message
+          : "알 수 없는 오류가 발생했습니다."
+      );
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const stats = [
     {
@@ -107,12 +171,27 @@ export default function Upload() {
             </div>
 
             {activeTab === "upload" && (
-              <div className="rounded-[28px] border-2 border-dashed border-[#E17AA4]/40 bg-[#FFF7FB] px-6 py-10 text-center transition hover:border-[#E17AA4]/70">
+              <div
+                className="rounded-[28px] border-2 border-dashed border-[#E17AA4]/40 bg-[#FFF7FB] px-6 py-10 text-center transition hover:border-[#E17AA4]/70"
+                onDragOver={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  setDragActive(true);
+                }}
+                onDrop={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  setDragActive(false);
+                  if (event.dataTransfer?.files?.length) {
+                    handleFiles(event.dataTransfer.files);
+                  }
+                }}
+              >
                 <div
                   className={`space-y-6 cursor-pointer ${dragActive ? "opacity-75" : ""}`}
                   onDragEnter={() => setDragActive(true)}
                   onDragLeave={() => setDragActive(false)}
-                  onDrop={() => setDragActive(false)}
+                  onClick={() => fileInputRef.current?.click()}
                 >
                   <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-sm mx-auto">
                     <UploadIcon size={28} className="text-[#E17AA4]" />
@@ -122,15 +201,78 @@ export default function Upload() {
                     <p className="text-sm text-slate-500">지원 형식: MP3, WAV, M4A (최대 30초)</p>
                   </div>
                   <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
-                    <button className="inline-flex items-center justify-center gap-2 rounded-full bg-[#A678E3] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#8f5cd1] focus:outline-none focus:ring-2 focus:ring-[#A678E3]/40 focus:ring-offset-2">
-                      <UploadIcon size={18} />
-                      파일 선택
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isUploading}
+                      className="inline-flex items-center justify-center gap-2 rounded-full bg-[#A678E3] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#8f5cd1] focus:outline-none focus:ring-2 focus:ring-[#A678E3]/40 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70"
+                    >
+                      {isUploading ? (
+                        <>
+                          <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                          업로드 중...
+                        </>
+                      ) : (
+                        <>
+                          <UploadIcon size={18} />
+                          파일 선택
+                        </>
+                      )}
                     </button>
                     {/* <button className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-[#E17AA4] px-6 py-3 text-sm font-semibold text-[#E17AA4] transition hover:bg-white focus:outline-none focus:ring-2 focus:ring-[#E17AA4]/40 focus:ring-offset-2">
                       <Mic size={18} />
                       바로 녹음하기
                     </button> */}
                   </div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="audio/mpeg,audio/wav,audio/x-m4a,audio/mp4,audio/aac"
+                    className="hidden"
+                    onChange={(event) => handleFiles(event.target.files)}
+                  />
+                </div>
+                <div className="mt-8 grid gap-4 text-left sm:grid-cols-3">
+                  <label className="space-y-2 text-sm text-slate-600">
+                    <span className="font-semibold text-[#A678E3]">녹음 길이 (초)</span>
+                    <input
+                      type="number"
+                      min="0"
+                      placeholder="예: 12"
+                      value={duration}
+                      onChange={(event) => setDuration(event.target.value)}
+                      className="w-full rounded-2xl border border-[#F4D7E8] bg-white px-4 py-2 text-sm focus:border-[#E17AA4] focus:outline-none"
+                    />
+                  </label>
+                  <label className="space-y-2 text-sm text-slate-600">
+                    <span className="font-semibold text-[#A678E3]">수집 방식</span>
+                    <select
+                      value={source}
+                      onChange={(event) => setSource(event.target.value as "parent" | "robot")}
+                      className="w-full rounded-2xl border border-[#F4D7E8] bg-white px-4 py-2 text-sm focus:border-[#E17AA4] focus:outline-none"
+                    >
+                      <option value="parent">부모 업로드</option>
+                      <option value="robot">로봇 자동 수집</option>
+                    </select>
+                  </label>
+                  <label className="space-y-2 text-sm text-slate-600 sm:col-span-3">
+                    <span className="font-semibold text-[#A678E3]">메모 (선택)</span>
+                    <input
+                      type="text"
+                      placeholder="예: 잠들기 전 옹알이"
+                      value={notes}
+                      onChange={(event) => setNotes(event.target.value)}
+                      className="w-full rounded-2xl border border-[#F4D7E8] bg-white px-4 py-2 text-sm focus:border-[#E17AA4] focus:outline-none"
+                    />
+                  </label>
+                </div>
+                <div className="mt-6 space-y-2 text-sm">
+                  {uploadMessage && (
+                    <p className="rounded-2xl bg-[#E8DAFA] px-4 py-3 font-semibold text-[#6E3EC1]">{uploadMessage}</p>
+                  )}
+                  {uploadError && (
+                    <p className="rounded-2xl bg-[#FFE5F1] px-4 py-3 font-semibold text-[#C9367C]">{uploadError}</p>
+                  )}
                 </div>
               </div>
             )}
