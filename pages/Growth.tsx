@@ -1,3 +1,4 @@
+import { useCallback, useRef, useState } from "react";
 import { Layout } from "@/components/Layout";
 import {
   Sparkles,
@@ -9,6 +10,7 @@ import {
   HandHeart,
   Play,
 } from "lucide-react";
+import { toast } from "sonner";
 
 const progressMetrics = [
   {
@@ -139,25 +141,148 @@ const recommendations = [
 ];
 
 export default function Growth() {
+  const reportRef = useRef<HTMLDivElement>(null);
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+
+  const handleDownloadPdf = useCallback(async () => {
+    if (!reportRef.current) {
+      toast.error("보고서 영역을 찾지 못했어요. 페이지를 새로고침 해주세요.");
+      return;
+    }
+
+    const html2canvasFn = window.html2canvas;
+    const pdfConstructor = window.jspdf?.jsPDF;
+
+    if (!html2canvasFn || !pdfConstructor) {
+      toast.error("PDF 생성을 위한 라이브러리를 불러오지 못했어요. 네트워크 상태를 확인해주세요.");
+      return;
+    }
+
+    setIsGeneratingPdf(true);
+
+    try {
+      await document.fonts.ready;
+
+      const element = reportRef.current;
+      const scale = Math.min(4, (window.devicePixelRatio || 1) * 2);
+      const canvas = await html2canvasFn(element, {
+        scale,
+        useCORS: true,
+        backgroundColor: "#ffffff",
+        logging: false,
+        windowWidth: element.scrollWidth,
+        windowHeight: element.scrollHeight,
+      });
+
+      const pdf = new pdfConstructor("p", "mm", "a4");
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+
+      const canvasWidth = canvas.width;
+      const canvasHeight = canvas.height;
+      const pxPerMm = canvasWidth / pageWidth;
+      const pageCanvasHeightPx = Math.floor(pxPerMm * pageHeight);
+
+      if (!pageCanvasHeightPx) {
+        throw new Error("PDF 페이지 높이를 계산하지 못했어요.");
+      }
+      const pageCount = Math.max(1, Math.ceil(canvasHeight / pageCanvasHeightPx));
+
+      for (let pageIndex = 0; pageIndex < pageCount; pageIndex += 1) {
+        const pageCanvas = document.createElement("canvas");
+        const context = pageCanvas.getContext("2d");
+
+        if (!context) {
+          throw new Error("PDF 캔버스 생성에 실패했어요.");
+        }
+
+        const sliceHeight = Math.min(
+          pageCanvasHeightPx,
+          canvasHeight - pageIndex * pageCanvasHeightPx,
+        );
+
+        pageCanvas.width = canvasWidth;
+        pageCanvas.height = sliceHeight;
+
+        context.drawImage(
+          canvas,
+          0,
+          pageIndex * pageCanvasHeightPx,
+          canvasWidth,
+          sliceHeight,
+          0,
+          0,
+          canvasWidth,
+          sliceHeight,
+        );
+
+        const imgData = pageCanvas.toDataURL("image/png", 1.0);
+        const pdfImageHeight = (sliceHeight * pageWidth) / canvasWidth;
+
+        if (pageIndex > 0) {
+          pdf.addPage();
+        }
+
+        pdf.addImage(imgData, "PNG", 0, 0, pageWidth, pdfImageHeight, undefined, "SLOW");
+      }
+
+      pdf.setProperties({ title: "WeGrow-Weekly-Growth-Report" });
+      pdf.save("wegrow-growth-report.pdf");
+
+      toast.success("성장 리포트를 PDF로 저장했어요!");
+    } catch (error) {
+      console.error("Failed to generate PDF", error);
+      toast.error("PDF 생성 중 오류가 발생했어요. 잠시 후 다시 시도해주세요.");
+    } finally {
+      setIsGeneratingPdf(false);
+    }
+  }, []);
+
   return (
     <Layout showNav={true}>
-      <div className="max-w-6xl mx-auto px-4 sm:px-8 py-12 space-y-16">
-        {/* Hero / Snapshot */}
-        <section className="relative overflow-hidden rounded-[40px] bg-gradient-to-br from-[#FDE4EC] via-[#F4E5FB] to-[#E0F1FF] p-8 sm:p-12 shadow-xl">
-          <div className="absolute -top-16 -left-10 h-44 w-44 rounded-full bg-white/40 blur-3xl" />
-          <div className="absolute -bottom-12 -right-8 h-48 w-48 rounded-full bg-[#E7D7FA]/60 blur-3xl" />
-          <div className="relative grid gap-10 lg:grid-cols-[1.1fr,1fr] items-start">
-            <div className="space-y-6">
-              <span className="inline-flex items-center gap-2 rounded-full bg-white/70 px-4 py-1 text-sm font-semibold text-[#E17AA4] shadow-sm">
-                이번 주 우리 아이 성장 보고서 💕
-              </span>
-              <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 leading-tight">
-                말로 표현하는 즐거움이 쑥쑥 자라는 중이에요!
-              </h1>
-              <p className="text-base sm:text-lg leading-relaxed text-slate-600 text-[#BAABBA]">
-                이번 주에는 아이가 어떤 말을 배웠을까요? 🌼
-              </p>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <div className="max-w-6xl mx-auto px-4 sm:px-8 py-12 space-y-6">
+        <div className="flex justify-end">
+          <button
+            type="button"
+            onClick={handleDownloadPdf}
+            disabled={isGeneratingPdf}
+            className="inline-flex items-center gap-2 rounded-full bg-[#A678E3] px-5 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-[#8f5cd1] focus:outline-none focus:ring-2 focus:ring-[#A678E3]/40 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-[#CDB7F2]"
+            aria-live="polite"
+            aria-busy={isGeneratingPdf}
+          >
+            {isGeneratingPdf ? (
+              <>
+                <span className="inline-flex h-4 w-4 items-center justify-center">
+                  <span className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                </span>
+                <span>PDF 생성 중...</span>
+              </>
+            ) : (
+              <>
+                <Download size={16} />
+                <span>PDF로 저장하기</span>
+              </>
+            )}
+          </button>
+        </div>
+
+        <div ref={reportRef} className="space-y-16">
+          {/* Hero / Snapshot */}
+          <section className="relative overflow-hidden rounded-[40px] bg-gradient-to-br from-[#FDE4EC] via-[#F4E5FB] to-[#E0F1FF] p-8 sm:p-12 shadow-xl">
+            <div className="absolute -top-16 -left-10 h-44 w-44 rounded-full bg-white/40 blur-3xl" />
+            <div className="absolute -bottom-12 -right-8 h-48 w-48 rounded-full bg-[#E7D7FA]/60 blur-3xl" />
+            <div className="relative grid gap-10 lg:grid-cols-[1.1fr,1fr] items-start">
+              <div className="space-y-6">
+                <span className="inline-flex items-center gap-2 rounded-full bg-white/70 px-4 py-1 text-sm font-semibold text-[#E17AA4] shadow-sm">
+                  이번 주 우리 아이 성장 보고서 💕
+                </span>
+                <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 leading-tight">
+                  말로 표현하는 즐거움이 쑥쑥 자라는 중이에요!
+                </h1>
+                <p className="text-base sm:text-lg leading-relaxed text-slate-600 text-[#BAABBA]">
+                  이번 주에는 아이가 어떤 말을 배웠을까요? 🌼
+                </p>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 <div className="rounded-2xl bg-white/80 px-4 py-5 shadow-sm border border-white/60">
                   <p className="text-xs font-semibold uppercase tracking-wide text-[#A678E3]">주요 어휘</p>
                   <p className="mt-2 text-3xl font-bold text-slate-900">42</p>
@@ -268,65 +393,37 @@ export default function Growth() {
         </section>
 
         <section className="rounded-[32px] border border-[#E7D7FA] bg-white/90 p-6 sm:p-8 shadow-lg space-y-6">
-  <div className="flex items-center gap-3">
-    <HandHeart className="text-[#E17AA4]" size={24} />
-    <div>
-      <p className="text-xs font-semibold uppercase tracking-wide text-[#E17AA4]">Parent Assist</p>
-      <h3 className="text-xl font-bold text-slate-900">도담이의 관찰을 바탕으로 드리는 조언</h3>
-    </div>
-  </div>
-
-  <ul className="space-y-4 text-sm leading-relaxed text-slate-600">
-    <li>• 오늘 도담이와 아이의 대화에서 <b>짧은 응답 후에 대화가 자주 멈췄어요.</b>  
-      부모님이 아이의 말 뒤에 한 단어만 더 이어주시면, 문장 길이가 자연스럽게 늘어날 거예요.  
-      <br></br>
-      <span className="text-[#A678E3] text-xs">예: 아이 “공!” → “공 굴러간다!”</span>
-    </li>
-    <li>• 아이가 <b>요청형 말(“더”, “줘”)</b>을 자주 사용했어요.  
-      이는 언어 이해가 빠르게 성장하는 시기예요. “무엇을 더?”처럼 선택지를 주면  
-      이해력과 표현력이 함께 자라납니다 💬
-    </li>
-    <li>• 도담이의 관찰에 따르면, <b>감정 표현어(‘좋아’, ‘싫어’ 등)</b> 반응이 아직 적어요.  
-      놀이 중에 부모님이 “즐거워!”, “화났구나!”처럼 감정을 말로 표현해주면  
-      아이가 스스로 감정을 언어로 표현하기 쉬워집니다 💖
-    </li>
-  </ul>
-
-  <div className="rounded-2xl border border-dashed border-[#E7D7FA] bg-[#FDF5FF] p-4 text-xs leading-relaxed text-slate-600">
-    💡 연구에 따르면, 부모의 짧은 확장 말과 일관된 반응은  
-    아이의 언어 이해력을 평균 5점 이상 향상시킬 수 있어요 (Roberts & Kaiser, 2015).  
-    내일은 도담이와의 대화 후, 잠시 멈추고 아이의 반응을 기다려보세요 —  
-    짧은 ‘기다림’이 언어를 자라게 해요 🌱
-  </div>
-</section>
-
-        {/* Stage Guides */}
-        {/* <section className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          {stageGuides.map((stage) => (
-            <div
-              key={stage.stage}
-              className="rounded-[32px] border border-[#F4D7E8] bg-white/90 p-6 sm:p-8 shadow-lg space-y-5"
-            >
-              <div className="flex items-center gap-3">
-                <Play style={{ color: stage.color }} size={22} />
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: stage.color }}>
-                    {stage.stage}
-                  </p>
-                  <h3 className="text-lg font-bold text-slate-900">{stage.summary}</h3>
-                </div>
-              </div>
-              <ul className="space-y-3 text-sm leading-relaxed text-slate-600">
-                {stage.actions.map((action) => (
-                  <li key={action}>• {action}</li>
-                ))}
-              </ul>
-              <div className="rounded-2xl border border-dashed border-[#F4D7E8] bg-[#FFF7FB] p-4 text-xs font-medium text-slate-600">
-                {stage.example}
-              </div>
+          <div className="flex items-center gap-3">
+            <HandHeart className="text-[#E17AA4]" size={24} />
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-[#E17AA4]">Parent Assist</p>
+              <h3 className="text-xl font-bold text-slate-900">도담이의 관찰을 바탕으로 드리는 조언</h3>
             </div>
-          ))}
-        </section> */}
+          </div>
+
+          <ul className="space-y-4 text-sm leading-relaxed text-slate-600">
+            <li>
+              • 오늘 도담이와 아이의 대화에서 <b>짧은 응답 후에 대화가 자주 멈췄어요.</b> 부모님이 아이의 말 뒤에 한
+              단어만 더 이어주시면, 문장 길이가 자연스럽게 늘어날 거예요.
+              <br />
+              <span className="text-[#A678E3] text-xs">예: 아이 “공!” → “공 굴러간다!”</span>
+            </li>
+            <li>
+              • 아이가 <b>요청형 말(“더”, “줘”)</b>을 자주 사용했어요. 이는 언어 이해가 빠르게 성장하는 시기예요. “무엇을
+              더?”처럼 선택지를 주면 이해력과 표현력이 함께 자라납니다 💬
+            </li>
+            <li>
+              • 도담이의 관찰에 따르면, <b>감정 표현어(‘좋아’, ‘싫어’ 등)</b> 반응이 아직 적어요. 놀이 중에 부모님이 “즐거워!”,
+              “화났구나!”처럼 감정을 말로 표현해주면 아이가 스스로 감정을 언어로 표현하기 쉬워집니다 💖
+            </li>
+          </ul>
+
+          <div className="rounded-2xl border border-dashed border-[#E7D7FA] bg-[#FDF5FF] p-4 text-xs leading-relaxed text-slate-600">
+            💡 연구에 따르면, 부모의 짧은 확장 말과 일관된 반응은 아이의 언어 이해력을 평균 5점 이상 향상시킬 수 있어요
+            (Roberts & Kaiser, 2015). 내일은 도담이와의 대화 후, 잠시 멈추고 아이의 반응을 기다려보세요 — 짧은 ‘기다림’이
+            언어를 자라게 해요 🌱
+          </div>
+        </section>
 
         {/* Recommendations */}
         <section className="space-y-8 rounded-[36px] border border-[#F4D7E8] bg-white/90 p-8 sm:p-10 shadow-xl">
@@ -349,17 +446,39 @@ export default function Growth() {
             💡 소아과나 언어치료 상담 때 리포트를 함께 보여주시면, 더 꼭 맞는 조언을 빠르게 받으실 수 있어요.
           </p>
           <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
-            <button className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 rounded-full bg-[#E17AA4] px-6 py-3 font-semibold text-white shadow-sm transition hover:bg-[#d0648f]">
-              <Download size={18} />
-              리포트 PDF 다운로드
+            <button
+              type="button"
+              onClick={handleDownloadPdf}
+              disabled={isGeneratingPdf}
+              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 rounded-full bg-[#E17AA4] px-6 py-3 font-semibold text-white shadow-sm transition hover:bg-[#d0648f] focus:outline-none focus:ring-2 focus:ring-[#E17AA4]/40 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-[#f0a6c6]"
+              aria-live="polite"
+              aria-busy={isGeneratingPdf}
+            >
+              {isGeneratingPdf ? (
+                <>
+                  <span className="inline-flex h-4 w-4 items-center justify-center">
+                    <span className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  </span>
+                  <span>PDF 생성 중...</span>
+                </>
+              ) : (
+                <>
+                  <Download size={18} />
+                  <span>리포트 PDF 다운로드</span>
+                </>
+              )}
             </button>
-            <button className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 rounded-full border-2 border-[#A678E3] px-6 py-3 font-semibold text-[#A678E3] transition hover:bg-[#FDF5FF]">
+            <button
+              type="button"
+              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 rounded-full border-2 border-[#A678E3] px-6 py-3 font-semibold text-[#A678E3] transition hover:bg-[#FDF5FF] focus:outline-none focus:ring-2 focus:ring-[#A678E3]/30 focus:ring-offset-2"
+            >
               <Share2 size={18} />
               보호자와 공유하기
             </button>
           </div>
           
         </section>
+        </div>
       </div>
     </Layout>
   );
