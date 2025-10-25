@@ -115,7 +115,7 @@ export default function Register() {
               회원가입
             </CardTitle>
             <CardDescription className="text-slate-600">
-              필요한 정보를 입력하고 도담과 함께해보세요.
+              필요한 정보를 입력하고 We:Grow와 함께 시작해보세요.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
