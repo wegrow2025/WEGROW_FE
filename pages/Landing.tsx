@@ -15,9 +15,12 @@ export default function Landing() {
           </span>
         </div>
         <div className="flex items-center gap-4">
-          <button className="text-sm font-medium text-foreground hover:text-primary transition">
+           <Link
+            to="/login"
+            className="text-sm font-medium text-foreground hover:text-primary transition"
+          >
             로그인
-          </button>
+          </Link>
           <Link
             to="/dashboard"
             className="px-4 py-2 rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition text-sm"

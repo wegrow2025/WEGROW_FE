@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { Layout } from "@/components/Layout";
 import { TrendingUp, Volume2, MessageCircle, Zap, ArrowUp } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface DailyReport {
   vocalizations: number;
@@ -13,13 +14,26 @@ interface DailyReport {
 }
 
 export default function Dashboard() {
-  const [report, setReport] = useState<DailyReport>({
+  const { currentUser } = useAuth();
+  const [report] = useState<DailyReport>({
     vocalizations: 14,
     syllableCombinations: 3,
     meaningfulAttempts: 5,
     newWords: 1,
     previousDay: { vocalizations: 12 },
   });
+
+  const userName = useMemo(() => {
+    if (currentUser?.name && String(currentUser.name).trim().length > 0) {
+      return String(currentUser.name).trim();
+    }
+
+    if (currentUser?.email && currentUser.email.includes("@")) {
+      return currentUser.email.split("@")[0];
+    }
+
+    return "000";
+  }, [currentUser]);
 
   const vocalizationChange =
     report.vocalizations - (report.previousDay?.vocalizations || 0);
@@ -31,7 +45,7 @@ export default function Dashboard() {
         {/* Header */}
         <div className="space-y-2">
           <h1 className="text-3xl sm:text-4xl font-bold text-foreground">
-            안녕하세요! 🎉
+            안녕하세요! {userName}님! 🎉
           </h1>
           <p className="text-muted-foreground">
             {new Date().toLocaleDateString("ko-KR", {
