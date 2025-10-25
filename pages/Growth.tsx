@@ -161,32 +161,69 @@ export default function Growth() {
     setIsGeneratingPdf(true);
 
     try {
-      const canvas = await html2canvasFn(reportRef.current, {
-        scale: 2,
+      await document.fonts.ready;
+
+      const element = reportRef.current;
+      const scale = Math.min(4, (window.devicePixelRatio || 1) * 2);
+      const canvas = await html2canvasFn(element, {
+        scale,
         useCORS: true,
         backgroundColor: "#ffffff",
         logging: false,
-        windowWidth: reportRef.current.scrollWidth,
+        windowWidth: element.scrollWidth,
+        windowHeight: element.scrollHeight,
       });
 
-      const imgData = canvas.toDataURL("image/png");
       const pdf = new pdfConstructor("p", "mm", "a4");
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
-      const imageProps = pdf.getImageProperties(imgData);
-      const pdfHeight = (imageProps.height * pageWidth) / imageProps.width;
 
-      let heightLeft = pdfHeight;
-      let position = 0;
+      const canvasWidth = canvas.width;
+      const canvasHeight = canvas.height;
+      const pxPerMm = canvasWidth / pageWidth;
+      const pageCanvasHeightPx = Math.floor(pxPerMm * pageHeight);
 
-      pdf.addImage(imgData, "PNG", 0, position, pageWidth, pdfHeight);
-      heightLeft -= pageHeight;
+      if (!pageCanvasHeightPx) {
+        throw new Error("PDF 페이지 높이를 계산하지 못했어요.");
+      }
+      const pageCount = Math.max(1, Math.ceil(canvasHeight / pageCanvasHeightPx));
 
-      while (heightLeft > 0) {
-        position = heightLeft - pdfHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, "PNG", 0, position, pageWidth, pdfHeight);
-        heightLeft -= pageHeight;
+      for (let pageIndex = 0; pageIndex < pageCount; pageIndex += 1) {
+        const pageCanvas = document.createElement("canvas");
+        const context = pageCanvas.getContext("2d");
+
+        if (!context) {
+          throw new Error("PDF 캔버스 생성에 실패했어요.");
+        }
+
+        const sliceHeight = Math.min(
+          pageCanvasHeightPx,
+          canvasHeight - pageIndex * pageCanvasHeightPx,
+        );
+
+        pageCanvas.width = canvasWidth;
+        pageCanvas.height = sliceHeight;
+
+        context.drawImage(
+          canvas,
+          0,
+          pageIndex * pageCanvasHeightPx,
+          canvasWidth,
+          sliceHeight,
+          0,
+          0,
+          canvasWidth,
+          sliceHeight,
+        );
+
+        const imgData = pageCanvas.toDataURL("image/png", 1.0);
+        const pdfImageHeight = (sliceHeight * pageWidth) / canvasWidth;
+
+        if (pageIndex > 0) {
+          pdf.addPage();
+        }
+
+        pdf.addImage(imgData, "PNG", 0, 0, pageWidth, pdfImageHeight, undefined, "SLOW");
       }
 
       pdf.setProperties({ title: "WeGrow-Weekly-Growth-Report" });
