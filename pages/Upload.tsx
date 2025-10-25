@@ -12,6 +12,16 @@ import {
 } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 
+type Sample = {
+  id: number;
+  timestamp: string;
+  duration: string;
+  source: string;
+  status: string;
+  notes: string;
+  waveform: number[];
+};
+
 export default function Upload() {
   const [dragActive, setDragActive] = useState(false);
   const [activeTab, setActiveTab] = useState<"upload" | "realtime" | "tts">("upload");
@@ -102,7 +112,7 @@ export default function Upload() {
     },
   ];
 
-  const samples = [
+  const [samples, setSamples] = useState<Sample[]>([
     {
       id: 1,
       timestamp: "오늘 14:32",
@@ -130,7 +140,43 @@ export default function Upload() {
       notes: "잠꼬대 - 제외됨",
       waveform: [34, 72, 54, 26, 62, 44, 88, 52, 40, 70, 48, 32],
     },
-  ];
+  ]);
+
+  const handleNoteChange = (id: number, value: string) => {
+    setSamples((prev) =>
+      prev.map((sample) =>
+        sample.id === id
+          ? {
+              ...sample,
+              notes: value,
+            }
+          : sample
+      )
+    );
+  };
+
+  const speakText = (text: string) => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) {
+      console.warn("이 브라우저에서는 음성 합성이 지원되지 않습니다.");
+      return;
+    }
+
+    const synth = window.speechSynthesis;
+
+    if (!synth) {
+      console.warn("음성 합성 엔진을 찾을 수 없습니다.");
+      return;
+    }
+
+    synth.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(
+      text.trim() === "" ? "메모가 없습니다." : text
+    );
+    utterance.lang = "ko-KR";
+
+    synth.speak(utterance);
+  };
 
   const activeTabTitle = useMemo(() => {
     if (activeTab === "realtime") {
@@ -276,7 +322,10 @@ export default function Upload() {
                       />
                     ))}
                   </div>
-                  <button className="shrink-0 rounded-full border border-[#A678E3]/40 px-3 py-1 text-xs font-semibold text-[#A678E3] transition hover:bg-[#FDF5FF]">
+                  <button
+                    onClick={() => speakText(sample.notes)}
+                    className="shrink-0 rounded-full border border-[#A678E3]/40 px-3 py-1 text-xs font-semibold text-[#A678E3] transition hover:bg-[#FDF5FF]"
+                  >
                     ▶ 재생
                   </button>
                 </div>
@@ -285,7 +334,10 @@ export default function Upload() {
                   <input
                     type="text"
                     placeholder="메모 추가 (예: 잠꼬대, 배경음, 형/누나 음성)"
-                    defaultValue={sample.notes}
+                    value={sample.notes}
+                    onChange={(event) =>
+                      handleNoteChange(sample.id, event.target.value)
+                    }
                     className="flex-1 rounded-full border border-[#F4D7E8] bg-white px-4 py-2 text-sm text-slate-600 placeholder:text-slate-400 focus:border-[#E17AA4] focus:outline-none"
                   />
                   <div className="flex gap-2">
