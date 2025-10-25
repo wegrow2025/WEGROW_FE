@@ -3,6 +3,8 @@ import {
   Upload as UploadIcon,
   X,
   CheckCircle,
+  Play,
+  Pause,
 } from "lucide-react";
 import { useRef, useState, useEffect } from "react";
 import { authenticatedFetch } from "@/lib/api";
@@ -15,6 +17,7 @@ interface AudioSample {
   status: string;
   notes: string;
   audioUrl?: string;
+  tts_audio_url?: string;
   analysisResult?: {
     transcription: string;
     intent: string;
@@ -43,7 +46,10 @@ export default function Upload() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadMessage, setUploadMessage] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [playingAudioId, setPlayingAudioId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const currentBlobUrlRef = useRef<string | null>(null);
 
   useEffect(() => {
     fetchSamplesData();
@@ -165,6 +171,97 @@ export default function Upload() {
     } catch (err) {
       console.error('Reanalyze error:', err);
     }
+  };
+
+  const playTTSAudio = async (sample: AudioSample) => {
+    // 현재 재생 중인 오디오가 있으면 정지 및 Blob URL 정리
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+    if (currentBlobUrlRef.current) {
+      URL.revokeObjectURL(currentBlobUrlRef.current);
+      currentBlobUrlRef.current = null;
+    }
+
+    // TTS URL이 없으면 안내
+    if (!sample.tts_audio_url) {
+      alert('TTS 오디오가 준비되지 않았습니다.');
+      return;
+    }
+
+    try {
+      setPlayingAudioId(sample.id);
+
+      // 인증 헤더와 함께 오디오 가져오기
+      const ttsUrl = sample.tts_audio_url;
+      const fullUrl = ttsUrl.startsWith('http') ? ttsUrl : `${(import.meta as any).env?.VITE_API_BASE_URL ?? "http://localhost:8000"}${ttsUrl}`;
+
+      const response = await authenticatedFetch(fullUrl, {
+        method: 'GET',
+        headers: {} // Content-Type을 설정하지 않음
+      });
+
+      if (!response.ok) {
+        throw new Error('오디오를 불러올 수 없습니다.');
+      }
+
+      // 오디오를 Blob으로 변환
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      currentBlobUrlRef.current = blobUrl;
+
+      // 새로운 Audio 객체 생성
+      const audio = new Audio(blobUrl);
+      audioRef.current = audio;
+
+      audio.play()
+        .then(() => {
+          console.log('TTS 오디오 재생 시작');
+        })
+        .catch(error => {
+          console.error('TTS 오디오 재생 실패:', error);
+          setPlayingAudioId(null);
+          alert('TTS 오디오 재생에 실패했습니다.');
+        });
+
+      // 재생 완료 시 상태 초기화 및 Blob URL 정리
+      audio.onended = () => {
+        setPlayingAudioId(null);
+        audioRef.current = null;
+        if (currentBlobUrlRef.current) {
+          URL.revokeObjectURL(currentBlobUrlRef.current);
+          currentBlobUrlRef.current = null;
+        }
+      };
+
+      // 재생 중지 시 상태 초기화 및 Blob URL 정리
+      audio.onerror = () => {
+        console.error('오디오 재생 오류');
+        setPlayingAudioId(null);
+        audioRef.current = null;
+        if (currentBlobUrlRef.current) {
+          URL.revokeObjectURL(currentBlobUrlRef.current);
+          currentBlobUrlRef.current = null;
+        }
+      };
+    } catch (error) {
+      console.error('오디오 로드 실패:', error);
+      setPlayingAudioId(null);
+      alert('오디오를 불러오는 데 실패했습니다.');
+    }
+  };
+
+  const stopAudio = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+    if (currentBlobUrlRef.current) {
+      URL.revokeObjectURL(currentBlobUrlRef.current);
+      currentBlobUrlRef.current = null;
+    }
+    setPlayingAudioId(null);
   };
 
   const activeTabTitle = "파일 업로드";
@@ -312,9 +409,6 @@ export default function Upload() {
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div>
                       <p className="text-sm font-semibold text-[#A678E3]">{sample.timestamp}</p>
-                      <p className="text-xs text-slate-500 mt-1">
-                        {sample.duration}초 • {sample.source}
-                      </p>
                     </div>
                     <span
                       className={`inline-flex items-center gap-1 self-start rounded-full px-3 py-1 text-xs font-semibold ${sample.status === "분석 완료"
@@ -337,10 +431,49 @@ export default function Upload() {
                         />
                       ))}
                     </div>
-                    <button className="shrink-0 rounded-full border border-[#A678E3]/40 px-3 py-1 text-xs font-semibold text-[#A678E3] transition hover:bg-[#FDF5FF]">
-                      ▶ 재생
+                    <button
+                      onClick={() => {
+                        if (playingAudioId === sample.id) {
+                          stopAudio();
+                        } else {
+                          playTTSAudio(sample);
+                        }
+                      }}
+                      disabled={!sample.tts_audio_url}
+                      className="shrink-0 inline-flex items-center gap-1 rounded-full border border-[#A678E3]/40 px-3 py-1 text-xs font-semibold text-[#A678E3] transition hover:bg-[#FDF5FF] disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {playingAudioId === sample.id ? (
+                        <>
+                          <Pause size={14} />
+                          일시정지
+                        </>
+                      ) : (
+                        <>
+                          <Play size={14} />
+                          재생
+                        </>
+                      )}
                     </button>
                   </div>
+
+                  {sample.analysisResult && (
+                    <div className="mt-4 rounded-2xl bg-white p-4 space-y-2 border border-[#E17AA4]/20">
+                      <div className="space-y-1">
+                        <p className="text-xs font-semibold text-slate-600">전사된 텍스트:</p>
+                        <p className="text-sm text-slate-900 font-medium">{sample.analysisResult.transcription || "없음"}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-xs font-semibold text-slate-600">의도:</p>
+                        <p className="text-sm text-slate-700">{sample.analysisResult.intent || "없음"}</p>
+                      </div>
+                      {sample.analysisResult.recommendedResponse && (
+                        <div className="space-y-1">
+                          <p className="text-xs font-semibold text-slate-600">추천 응답:</p>
+                          <p className="text-sm text-[#A678E3] font-medium">{sample.analysisResult.recommendedResponse}</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
                     <input

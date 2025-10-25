@@ -21,8 +21,8 @@ export async function authenticatedFetch(
         ...options.headers,
     };
 
-    // body가 FormData가 아닌 경우에만 Content-Type을 application/json으로 설정
-    if (!(options.body instanceof FormData)) {
+    // body가 FormData가 아니고 Content-Type이 명시적으로 설정되지 않은 경우에만 application/json으로 설정
+    if (!(options.body instanceof FormData) && !options.headers?.['Content-Type'] && !options.headers?.['content-type']) {
         headers['Content-Type'] = 'application/json';
     }
 
