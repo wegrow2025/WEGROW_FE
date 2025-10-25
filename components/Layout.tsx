@@ -34,29 +34,32 @@ export function Layout({ children, showNav = true }: LayoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col lg:flex-row">
+    <div className="min-h-screen bg-gradient-to-br from-[#FFF9F4] via-[#FEEFF7] to-[#F7F6FF] text-slate-900 flex flex-col lg:flex-row">
       {/* Mobile Header */}
-      <div className="lg:hidden flex items-center justify-between h-16 px-4 border-b bg-card fixed top-0 left-0 right-0 z-40">
-        <Link to="/" className="text-lg font-bold text-primary">
+      <div className="lg:hidden flex items-center justify-between h-16 px-4 border-b border-[#F4D7E8] bg-white/80 backdrop-blur-md shadow-sm fixed top-0 left-0 right-0 z-40">
+        <Link to="/" className="text-lg font-bold text-[#E17AA4]">
           We:Grow
         </Link>
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="p-2 hover:bg-muted rounded-md"
+          className="p-2 hover:bg-[#FDF2F7] rounded-md text-slate-600"
         >
           {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
 
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex flex-col w-64 border-r bg-sidebar h-screen fixed top-0 left-0">
-        <div className="flex items-center gap-2 h-16 px-6 border-b">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-            <span className="text-white text-sm font-bold">W</span>
+      <aside className="hidden lg:flex flex-col w-64 border-r border-[#F4D7E8] bg-white/80 backdrop-blur-xl h-screen fixed top-0 left-0">
+        <div className="flex items-center gap-3 h-20 px-6 border-b border-[#F4D7E8] bg-white/70">
+          <div className="w-10 h-10 rounded-2xl bg-[#F7B5C3] flex items-center justify-center text-lg shadow-sm">
+            🐭
           </div>
-          <span className="text-lg font-bold text-sidebar-foreground">
-            We:Grow
-          </span>
+          <div className="flex flex-col">
+            <span className="text-xl font-extrabold tracking-tight text-slate-900">
+              도담
+            </span>
+            <span className="text-xs text-slate-500">말놀이 성장 파트너</span>
+          </div>
         </div>
 
         <nav className="flex-1 px-4 py-6 space-y-2">
@@ -65,10 +68,10 @@ export function Layout({ children, showNav = true }: LayoutProps) {
               key={path}
               to={path}
               className={cn(
-                "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors",
+                "flex items-center gap-3 px-4 py-3 rounded-2xl transition-all",
                 location.pathname === path
-                  ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold"
-                  : "text-sidebar-foreground hover:bg-sidebar-accent/50"
+                  ? "bg-gradient-to-r from-[#FDE4EC] to-[#E7D7FA] text-slate-900 font-semibold shadow-sm"
+                  : "text-slate-600 hover:bg-[#FDF2F7]"
               )}
             >
               <Icon size={20} />
@@ -77,17 +80,17 @@ export function Layout({ children, showNav = true }: LayoutProps) {
           ))}
         </nav>
 
-        <div className="border-t p-4">
+        <div className="border-t border-[#F4D7E8] p-4 space-y-2">
           <Link
             to="/upload"
-            className="flex items-center gap-3 px-4 py-3 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors mb-2"
+            className="flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-600 hover:bg-[#FDF2F7] transition"
           >
             <Upload size={20} />
             <span>녹음/업로드</span>
           </Link>
           <Link
             to="/settings"
-            className="flex items-center gap-3 px-4 py-3 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors"
+            className="flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-600 hover:bg-[#FDF2F7] transition"
           >
             <Settings size={20} />
             <span>설정</span>
@@ -102,7 +105,7 @@ export function Layout({ children, showNav = true }: LayoutProps) {
             className="absolute inset-0 bg-black/50"
             onClick={() => setSidebarOpen(false)}
           />
-          <aside className="absolute left-0 top-0 bottom-0 w-64 bg-sidebar border-r flex flex-col">
+          <aside className="absolute left-0 top-0 bottom-0 w-64 bg-white/95 backdrop-blur-xl border-r border-[#F4D7E8] flex flex-col">
             <div className="h-16" />
             <nav className="flex-1 px-4 py-6 space-y-2">
               {navItems.map(({ path, label, icon: Icon }) => (
@@ -111,10 +114,10 @@ export function Layout({ children, showNav = true }: LayoutProps) {
                   to={path}
                   onClick={() => setSidebarOpen(false)}
                   className={cn(
-                    "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors",
+                    "flex items-center gap-3 px-4 py-3 rounded-2xl transition",
                     location.pathname === path
-                      ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold"
-                      : "text-sidebar-foreground hover:bg-sidebar-accent/50"
+                      ? "bg-gradient-to-r from-[#FDE4EC] to-[#E7D7FA] text-slate-900 font-semibold shadow-sm"
+                      : "text-slate-600 hover:bg-[#FDF2F7]"
                   )}
                 >
                   <Icon size={20} />
@@ -122,11 +125,11 @@ export function Layout({ children, showNav = true }: LayoutProps) {
                 </Link>
               ))}
             </nav>
-            <div className="border-t p-4 space-y-2">
+            <div className="border-t border-[#F4D7E8] p-4 space-y-2">
               <Link
                 to="/upload"
                 onClick={() => setSidebarOpen(false)}
-                className="flex items-center gap-3 px-4 py-3 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors"
+                className="flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-600 hover:bg-[#FDF2F7] transition"
               >
                 <Upload size={20} />
                 <span>녹음/업로드</span>
@@ -134,7 +137,7 @@ export function Layout({ children, showNav = true }: LayoutProps) {
               <Link
                 to="/settings"
                 onClick={() => setSidebarOpen(false)}
-                className="flex items-center gap-3 px-4 py-3 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors"
+                className="flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-600 hover:bg-[#FDF2F7] transition"
               >
                 <Settings size={20} />
                 <span>설정</span>
@@ -150,16 +153,16 @@ export function Layout({ children, showNav = true }: LayoutProps) {
       </main>
 
       {/* Mobile Bottom Navigation */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 border-t bg-card flex items-center justify-around h-16 z-40">
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 border-t border-[#F4D7E8] bg-white/90 backdrop-blur flex items-center justify-around h-16 z-40">
         {navItems.map(({ path, label, icon: Icon }) => (
           <Link
             key={path}
             to={path}
             className={cn(
-              "flex flex-col items-center justify-center gap-1 flex-1 h-full transition-colors",
+              "flex flex-col items-center justify-center gap-1 flex-1 h-full transition",
               location.pathname === path
-                ? "text-primary bg-accent/10"
-                : "text-muted-foreground hover:text-foreground"
+                ? "text-[#E17AA4] bg-[#FDF2F7]"
+                : "text-slate-500 hover:text-slate-700"
             )}
           >
             <Icon size={24} />
