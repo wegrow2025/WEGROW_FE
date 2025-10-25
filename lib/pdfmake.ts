@@ -33,7 +33,21 @@ let fontsRegistered = false;
 export async function loadPdfMake(): Promise<PdfMake> {
   if (!pdfMakePromise) {
     pdfMakePromise = import(/* @vite-ignore */ PDFMAKE_MODULE_URL).then(
-      (module) => (module.default ?? module) as PdfMake,
+      (module) => {
+        const pdfMakeExport = (module.default ?? module) as PdfMake;
+
+        if (Object.isExtensible(pdfMakeExport)) {
+          return pdfMakeExport;
+        }
+
+        const clonedPdfMake: PdfMake = {
+          ...pdfMakeExport,
+          vfs: { ...(pdfMakeExport.vfs ?? {}) },
+          fonts: { ...(pdfMakeExport.fonts ?? {}) },
+        };
+
+        return clonedPdfMake;
+      },
     );
   }
 
