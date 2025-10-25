@@ -60,16 +60,18 @@ export function Layout({ children, showNav = true }: LayoutProps) {
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex flex-col w-64 border-r border-[#F4D7E8] bg-white/80 backdrop-blur-xl h-screen fixed top-0 left-0">
         {/* 로고 영역: 텍스트/원 제거, 이미지 단독 사용 */}
-        <div className="flex items-center justify-start h-20 px-0 border-b border-[#F4D7E8] bg-white/70">
+        {/* <div className="flex items-center justify-center h-20 px-0 border-b border-[#F4D7E8] bg-white/70"> */}
+          <div className="flex items-center justify-center">
           <Link to="/dashboard" className="flex items-center">
             <img
               src={logoSrc}
               alt="도담 로고"
-              className="h-21 w-auto object-contain"
+              className="h-20 w-auto object-contain"
               loading="eager"
             />
           </Link>
-        </div>
+          </div>
+        {/* </div> */}
 
         <nav className="flex-1 px-4 py-6 space-y-2">
           {navItems.map(({ path, label, icon: Icon }) => (
