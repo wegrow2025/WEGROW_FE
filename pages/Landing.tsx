@@ -3,28 +3,28 @@ import { Link } from "react-router-dom";
 
 export default function Landing() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FFF9F4] via-[#FEEFF7] to-[#F7F6FF] text-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-[#F2F6FF] via-[#EEF2FB] to-[#E9F0FF] text-[#5A564F]">
       {/* Navigation */}
-      <nav className="flex items-center justify-between h-16 px-4 sm:px-8 border-b border-[#F4D7E8] bg-white/80 backdrop-blur-md sticky top-0 z-40">
+      <nav className="flex items-center justify-between h-16 px-4 sm:px-8 border-b border-[#D9DFEA] bg-white/85 backdrop-blur-md sticky top-0 z-40">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-[#F7B5C3] shadow-sm flex items-center justify-center text-2xl">
+          <div className="w-10 h-10 rounded-full bg-[#F2C9D6] shadow-sm flex items-center justify-center text-2xl">
             🐭
           </div>
           <div className="flex flex-col">
-            <span className="text-xl font-extrabold tracking-tight">도담</span>
-            <span className="text-xs text-slate-500">말놀이 성장 파트너</span>
+            <span className="text-xl font-extrabold tracking-tight text-[#6F655E]">도담</span>
+            <span className="text-xs text-[#8A8279]">말놀이 성장 파트너</span>
           </div>
         </div>
         <div className="flex items-center gap-4 text-sm font-medium">
           <Link
             to="/login"
-            className="text-slate-600 hover:text-[#E17AA4] transition"
+            className="text-[#8A8279] hover:text-[#6F655E] transition"
           >
             로그인
           </Link>
           <Link
             to="/dashboard"
-            className="px-4 py-2 rounded-full bg-[#E17AA4] text-white hover:bg-[#d0648f] transition shadow-sm"
+            className="px-4 py-2 rounded-full bg-[#6F655E] text-white hover:bg-[#5A524B] transition shadow-sm"
           >
             시작하기
           </Link>
@@ -35,59 +35,60 @@ export default function Landing() {
       <section className="max-w-6xl mx-auto px-4 sm:px-8 py-16 sm:py-24">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-8">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/80 border border-[#F4D7E8] text-sm text-[#E17AA4] font-semibold">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/80 border border-[#D9DFEA] text-sm text-[#6F655E] font-semibold">
               18-24개월 언어 발달을 위한 AI 말벗 로봇
             </div>
             <h1 className="text-4xl sm:text-5xl font-extrabold leading-tight">
-              아이의 첫 대화를 지켜주는 <span className="text-[#E17AA4]">도담</span>
+              아이의 첫 대화를 지켜주는 <span className="text-[#6F655E]">도담</span>
             </h1>
-            <p className="text-lg text-slate-600 leading-relaxed">
+            <p className="text-lg text-[#767069] leading-relaxed">
               도담은 아이의 발화를 세심하게 듣고, 나이에 맞춘 말걸기와 놀이로 언어 능력을 차근차근 키워줍니다. 아이가 어떤 방식으로든 표현하면 즉시 반응하며, 부모에게는 오늘 바로 활용할 수 있는 대화 가이드를 전해요.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Link
                 to="/dashboard"
-                className="px-8 py-3 rounded-full bg-[#E17AA4] text-white font-semibold hover:bg-[#d0648f] transition flex items-center justify-center gap-2 shadow-sm"
+                className="px-8 py-3 rounded-full bg-[#6F655E] text-white font-semibold hover:bg-[#5A524B] transition flex items-center justify-center gap-2 shadow-sm"
               >
                 무료로 시작하기 <ArrowRight size={20} />
               </Link>
-              <button className="px-8 py-3 rounded-full border-2 border-[#E17AA4] text-[#E17AA4] font-semibold hover:bg-[#FDF2F7] transition flex items-center justify-center gap-2">
+              <button className="px-8 py-3 rounded-full border-2 border-[#6F655E] text-[#6F655E] font-semibold hover:bg-[#F3E8E8] transition flex items-center justify-center gap-2">
+
                 데모 보기 <Play size={20} />
               </button>
             </div>
           </div>
-          <div className="bg-white rounded-3xl border border-[#F4D7E8] shadow-xl p-8 relative overflow-hidden">
-            <div className="absolute -top-20 -right-12 w-64 h-64 bg-[#FDE4EC] rounded-full blur-3xl opacity-80" />
+          <div className="bg-white rounded-3xl border border-[#D9DFEA] shadow-xl p-8 relative overflow-hidden">
+            <div className="absolute -top-20 -right-12 w-64 h-64 bg-[#E8DCE3] rounded-full blur-3xl opacity-80" />
             <div className="relative space-y-6">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-[#F7B5C3] flex items-center justify-center text-2xl">
+                <div className="w-12 h-12 rounded-full bg-[#F2C9D6] flex items-center justify-center text-2xl">
                   🐭
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-slate-500">오늘의 말놀이 기록</p>
-                  <p className="text-xl font-bold text-slate-900">"바바" → "바나나"</p>
+                  <p className="text-sm font-semibold text-[#8A8279]">오늘의 말놀이 기록</p>
+                  <p className="text-xl font-bold text-[#4F4942]">"바바" → "바나나"</p>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4 text-sm">
-                <div className="rounded-2xl border border-[#F4D7E8] bg-[#FFF7FB] p-4 space-y-2">
-                  <p className="font-semibold text-[#E17AA4]">18개월 아이</p>
-                  <ul className="space-y-1 text-slate-600">
+                <div className="rounded-2xl border border-[#D9DFEA] bg-[#F9F1F4] p-4 space-y-2">
+                  <p className="font-semibold text-[#6F655E]">18개월 아이</p>
+                  <ul className="space-y-1 text-[#767069]">
                     <li>• 옹알이 이해도 92%</li>
                     <li>• 어휘 확장 제안 3개</li>
                     <li>• 추천 표현: "바나나 좋아?"</li>
                   </ul>
                 </div>
-                <div className="rounded-2xl border border-[#F4D7E8] bg-[#FDF5FF] p-4 space-y-2">
-                  <p className="font-semibold text-[#A678E3]">부모 대시보드</p>
-                  <ul className="space-y-1 text-slate-600">
+                <div className="rounded-2xl border border-[#D9DFEA] bg-[#F4F6FB] p-4 space-y-2">
+                  <p className="font-semibold text-[#8A8279]">부모 대시보드</p>
+                  <ul className="space-y-1 text-[#767069]">
                     <li>• 오늘의 반응률 87%</li>
                     <li>• 새로 배운 단어 4개</li>
                     <li>• 다음 질문: "고양이는 뭐라고 해?"</li>
                   </ul>
                 </div>
               </div>
-              <div className="rounded-2xl bg-gradient-to-r from-[#FDE4EC] to-[#E7D7FA] p-6 space-y-2 text-slate-700">
-                <p className="text-sm font-semibold text-[#A678E3]">도담의 약속</p>
+              <div className="rounded-2xl bg-gradient-to-r from-[#F3E4E9] to-[#E3E9F5] p-6 space-y-2 text-[#5A564F]">
+                <p className="text-sm font-semibold text-[#8A8279]">도담의 약속</p>
                 <p className="text-base leading-relaxed">
                   아이의 발화를 기다려주고, 의미를 찾아주며, 더 나은 표현을 제안합니다. 부모는 앱에서 성장 변화를 시각으로 확인해요.
                 </p>
@@ -98,16 +99,16 @@ export default function Landing() {
       </section>
 
       {/* Key Features */}
-      <section className="bg-white/80 py-16 sm:py-24 border-y border-[#F4D7E8]">
+      <section className="bg-white/85 py-16 sm:py-24 border-y border-[#D9DFEA]">
         <div className="max-w-6xl mx-auto px-4 sm:px-8">
-          <h2 className="text-3xl font-bold text-center text-slate-900 mb-4">
+          <h2 className="text-3xl font-bold text-center text-[#4F4942] mb-4">
             도담이 만드는 언어 성장 루틴
           </h2>
-          <p className="text-center text-slate-600 max-w-2xl mx-auto mb-12">
+          <p className="text-center text-[#767069] max-w-2xl mx-auto mb-12">
             18~24개월 영유아의 발달 단계에 맞춰 설계된 네 가지 핵심 기능으로, 아이의 시도 하나하나에 의미 있게 반응합니다.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[ 
+            {[
               {
                 icon: "💞",
                 title: "대화형 말벗",
@@ -131,11 +132,11 @@ export default function Landing() {
             ].map((item) => (
               <div
                 key={item.title}
-                className="rounded-3xl border border-[#F4D7E8] bg-white p-6 shadow-sm hover:-translate-y-1 transition"
+                className="rounded-3xl border border-[#D9DFEA] bg-white p-6 shadow-sm hover:-translate-y-1 transition"
               >
                 <div className="text-3xl mb-4">{item.icon}</div>
-                <h3 className="font-semibold text-lg mb-2 text-slate-900">{item.title}</h3>
-                <p className="text-sm text-slate-600 leading-relaxed">{item.desc}</p>
+                <h3 className="font-semibold text-lg mb-2 text-[#4F4942]">{item.title}</h3>
+                <p className="text-sm text-[#767069] leading-relaxed">{item.desc}</p>
               </div>
             ))}
           </div>
@@ -144,7 +145,7 @@ export default function Landing() {
 
       {/* How It Works */}
       <section className="max-w-6xl mx-auto px-4 sm:px-8 py-16 sm:py-24">
-        <h2 className="text-3xl font-bold text-center text-slate-900 mb-12">도담과 하루를 보내는 방법</h2>
+        <h2 className="text-3xl font-bold text-center text-[#4F4942] mb-12">도담과 하루를 보내는 방법</h2>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {[
             {
@@ -168,56 +169,56 @@ export default function Landing() {
               desc: "앱에서 오늘의 대화 포인트와 놀이 스크립트를 확인합니다.",
             },
           ].map((item) => (
-            <div key={item.step} className="rounded-3xl border border-[#F4D7E8] bg-white/80 p-6 space-y-3 text-slate-700">
-              <div className="inline-flex w-12 h-12 items-center justify-center rounded-full bg-[#E17AA4] text-white font-bold text-lg">
+            <div key={item.step} className="rounded-3xl border border-[#D9DFEA] bg-white/80 p-6 space-y-3 text-[#5A564F]">
+              <div className="inline-flex w-12 h-12 items-center justify-center rounded-full bg-[#6F655E] text-white font-bold text-lg">
                 {item.step}
               </div>
-              <h3 className="font-semibold text-lg text-slate-900">{item.title}</h3>
-              <p className="text-sm leading-relaxed">{item.desc}</p>
+              <h3 className="font-semibold text-lg text-[#4F4942]">{item.title}</h3>
+              <p className="text-sm leading-relaxed text-[#767069]">{item.desc}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* Development Focus */}
-      <section className="bg-[#FFF2F8] py-16 sm:py-24">
+      <section className="bg-[#EEF2FB] py-16 sm:py-24">
         <div className="max-w-6xl mx-auto px-4 sm:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             <div className="space-y-6">
-              <h2 className="text-3xl font-bold text-slate-900">18~24개월, 가장 중요한 언어 폭발기</h2>
-              <p className="text-slate-700 leading-relaxed">
+              <h2 className="text-3xl font-bold text-[#4F4942]">18~24개월, 가장 중요한 언어 폭발기</h2>
+              <p className="text-[#5A564F] leading-relaxed">
                 이 시기의 아이들은 10~15개의 단어를 말하기 시작하고, 두 단어를 이어 말하는 시도로 성장합니다. 도담은 이러한 발달 지표를 실시간으로 관찰해 언어 자극의 난이도를 조절합니다.
               </p>
-              <ul className="space-y-4 text-slate-700 text-sm">
+              <ul className="space-y-4 text-[#5A564F] text-sm">
                 <li>
-                  <span className="font-semibold text-[#E17AA4]">✔ 컨텍스트 맞춤 피드백</span>
+                  <span className="font-semibold text-[#6F655E]">✔ 컨텍스트 맞춤 피드백</span>
                   <p>아이가 말하거나 손짓하면 즉시 의미를 해석하고, 관련 단어를 모델링해줍니다.</p>
                 </li>
                 <li>
-                  <span className="font-semibold text-[#E17AA4]">✔ 비언어 신호 이해</span>
+                  <span className="font-semibold text-[#6F655E]">✔ 비언어 신호 이해</span>
                   <p>고개 끄덕임, 손가락 가리킴 등 비언어 표현도 함께 기록하여 부모에게 알려줍니다.</p>
                 </li>
                 <li>
-                  <span className="font-semibold text-[#E17AA4]">✔ 단계별 활동 제안</span>
+                  <span className="font-semibold text-[#6F655E]">✔ 단계별 활동 제안</span>
                   <p>오늘의 발화 데이터를 기반으로 새로운 어휘 놀이와 질문을 제안합니다.</p>
                 </li>
               </ul>
             </div>
-            <div className="bg-white rounded-3xl border border-[#F4D7E8] p-8 shadow-sm space-y-6">
-              <h3 className="text-xl font-bold text-slate-900">발달 단계별 도담 대화 예시</h3>
-              <div className="space-y-4 text-sm text-slate-700">
-                <div className="p-4 rounded-2xl bg-[#FFF7FB] border border-[#F4D7E8]">
-                  <p className="font-semibold text-[#E17AA4]">18개월</p>
+            <div className="bg-white rounded-3xl border border-[#D9DFEA] p-8 shadow-sm space-y-6">
+              <h3 className="text-xl font-bold text-[#4F4942]">발달 단계별 도담 대화 예시</h3>
+              <div className="space-y-4 text-sm text-[#5A564F]">
+                <div className="p-4 rounded-2xl bg-[#F9F1F4] border border-[#D9DFEA]">
+                  <p className="font-semibold text-[#6F655E]">18개월</p>
                   <p className="mt-2">아이: "바 바"</p>
                   <p>도담: "바나나 찾는구나? 노란색 바나나 맛있지!"</p>
                 </div>
-                <div className="p-4 rounded-2xl bg-[#FDF5FF] border border-[#E2D2FF]">
-                  <p className="font-semibold text-[#A678E3]">21개월</p>
+                <div className="p-4 rounded-2xl bg-[#F4F6FB] border border-[#D9DFEA]">
+                  <p className="font-semibold text-[#8A8279]">21개월</p>
                   <p className="mt-2">아이: "멍멍 어디?"</p>
                   <p>도담: "멍멍이는 마당에 있어. 한번 불러볼까? '멍멍아 여기 와!'"</p>
                 </div>
-                <div className="p-4 rounded-2xl bg-[#F2F7FF] border border-[#C9D9FF]">
-                  <p className="font-semibold text-[#6B8AF2]">24개월</p>
+                <div className="p-4 rounded-2xl bg-[#EDF3FF] border border-[#D9DFEA]">
+                  <p className="font-semibold text-[#6B7484]">24개월</p>
                   <p className="mt-2">아이: "더 우유"</p>
                   <p>도담: "우유 더 마시고 싶구나. '우유 더 주세요'라고 말해볼까?"</p>
                 </div>
@@ -229,11 +230,11 @@ export default function Landing() {
 
       {/* Parent Value */}
       <section className="max-w-6xl mx-auto px-4 sm:px-8 py-16 sm:py-24">
-        <h2 className="text-3xl font-bold text-center text-slate-900 mb-12">부모가 느끼는 변화</h2>
+        <h2 className="text-3xl font-bold text-center text-[#4F4942] mb-12">부모가 느끼는 변화</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[ 
+          {[
             {
-              title: "말걸기 스크립트", 
+              title: "말걸기 스크립트",
               desc: "전문가가 검토한 표현을 간단한 카드로 제공해 부모가 바로 활용할 수 있어요.",
               tag: "오늘의 추천 질문 2개",
             },
@@ -248,12 +249,12 @@ export default function Landing() {
               tag: "지난주 녹음 8개",
             },
           ].map((item) => (
-            <div key={item.title} className="rounded-3xl border border-[#F4D7E8] bg-white p-6 shadow-sm space-y-4">
-              <div className="inline-flex px-3 py-1 rounded-full bg-[#FFF7FB] text-xs font-semibold text-[#E17AA4]">
+            <div key={item.title} className="rounded-3xl border border-[#D9DFEA] bg-white p-6 shadow-sm space-y-4">
+              <div className="inline-flex px-3 py-1 rounded-full bg-[#F9F1F4] text-xs font-semibold text-[#6F655E]">
                 {item.tag}
               </div>
-              <h3 className="font-semibold text-lg text-slate-900">{item.title}</h3>
-              <p className="text-sm text-slate-600 leading-relaxed">{item.desc}</p>
+              <h3 className="font-semibold text-lg text-[#4F4942]">{item.title}</h3>
+              <p className="text-sm text-[#767069] leading-relaxed">{item.desc}</p>
             </div>
           ))}
         </div>
@@ -261,21 +262,21 @@ export default function Landing() {
 
       {/* CTA */}
       <section className="px-4 sm:px-8 pb-24">
-        <div className="max-w-5xl mx-auto rounded-3xl bg-gradient-to-r from-[#FDE4EC] via-[#F5D7FF] to-[#DDE4FF] text-slate-900 text-center py-16 px-8 shadow-xl">
+        <div className="max-w-5xl mx-auto rounded-3xl bg-gradient-to-r from-[#F3E4E9] via-[#E9EEF9] to-[#E1E6F3] text-[#4F4942] text-center py-16 px-8 shadow-xl">
           <h2 className="text-3xl sm:text-4xl font-extrabold mb-4">아이의 언어 여정, 지금 도담과 시작하세요</h2>
-          <p className="text-lg text-slate-700 max-w-2xl mx-auto mb-8">
+          <p className="text-lg text-[#5A564F] max-w-2xl mx-auto mb-8">
             아이의 모든 시도를 존중하고 확장해주는 말놀이 파트너. 부모는 도담과 함께 더 따뜻하고 풍부한 대화를 준비할 수 있습니다.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               to="/dashboard"
-              className="px-8 py-3 rounded-full bg-[#E17AA4] text-white font-semibold hover:bg-[#d0648f] transition shadow-sm"
+              className="px-8 py-3 rounded-full bg-[#6F655E] text-white font-semibold hover:bg-[#5A524B] transition shadow-sm"
             >
               무료로 시작하기 →
             </Link>
             <Link
               to="/register"
-              className="px-8 py-3 rounded-full border-2 border-white/60 bg-white/30 text-slate-800 font-semibold hover:bg-white/50 transition"
+              className="px-8 py-3 rounded-full border-2 border-white/60 bg-white/30 text-[#5A564F] font-semibold hover:bg-white/50 transition"
             >
               도담 소식 받기
             </Link>
@@ -284,65 +285,65 @@ export default function Landing() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-white/80 border-t border-[#F4D7E8] py-12 px-4 sm:px-8 text-slate-600">
+      <footer className="bg-white/85 border-t border-[#D9DFEA] py-12 px-4 sm:px-8 text-[#767069]">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-8 mb-8">
             <div className="space-y-3">
               <div className="flex items-center gap-2">
-                <div className="w-9 h-9 rounded-full bg-[#F7B5C3] flex items-center justify-center text-xl">🐭</div>
-                <span className="font-bold text-slate-900">도담</span>
+                <div className="w-9 h-9 rounded-full bg-[#F2C9D6] flex items-center justify-center text-xl">🐭</div>
+                <span className="font-bold text-[#4F4942]">도담</span>
               </div>
               <p className="text-sm leading-relaxed">
                 아이의 언어 시도를 기다려주고 확장해주는 맞춤형 말놀이 로봇 친구.
               </p>
             </div>
             <div>
-              <h4 className="font-semibold text-slate-900 mb-3 text-sm">제품</h4>
+              <h4 className="font-semibold text-[#4F4942] mb-3 text-sm">제품</h4>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <a href="#" className="hover:text-[#E17AA4] transition">
+                  <a href="#" className="hover:text-[#6F655E] transition">
                     주요 기능
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-[#E17AA4] transition">
+                  <a href="#" className="hover:text-[#6F655E] transition">
                     데모 신청
                   </a>
                 </li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold text-slate-900 mb-3 text-sm">지원</h4>
+              <h4 className="font-semibold text-[#4F4942] mb-3 text-sm">지원</h4>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <a href="#" className="hover:text-[#E17AA4] transition">
+                  <a href="#" className="hover:text-[#6F655E] transition">
                     자주 묻는 질문
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-[#E17AA4] transition">
+                  <a href="#" className="hover:text-[#6F655E] transition">
                     고객센터
                   </a>
                 </li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold text-slate-900 mb-3 text-sm">정책</h4>
+              <h4 className="font-semibold text-[#4F4942] mb-3 text-sm">정책</h4>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <a href="#" className="hover:text-[#E17AA4] transition">
+                  <a href="#" className="hover:text-[#6F655E] transition">
                     이용약관
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-[#E17AA4] transition">
+                  <a href="#" className="hover:text-[#6F655E] transition">
                     개인정보처리방침
                   </a>
                 </li>
               </ul>
             </div>
           </div>
-          <div className="border-t border-[#F4D7E8] pt-6 text-center text-xs text-slate-500">
+          <div className="border-t border-[#D9DFEA] pt-6 text-center text-xs text-[#8A8279]">
             <p>© 2025 Dodam Labs. All rights reserved.</p>
           </div>
         </div>
