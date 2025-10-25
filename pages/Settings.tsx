@@ -270,7 +270,7 @@ export default function Settings() {
               개인정보 보호
             </a>
           </p>
-          <p className="text-xs uppercase tracking-[0.2em] text-[#A678E3]">Dodam © 2025</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-[#A678E3]">We:Grow © 2025</p>
         </div>
       </div>
     </Layout>
