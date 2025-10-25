@@ -65,7 +65,8 @@ const registerFonts = (reactPdf: ReactPdfModule) => {
 };
 
 const PDF_SCALE = 0.8;
-const scale = (value: number) => value * PDF_SCALE;
+const scale = (value: number) =>
+  Math.round((value * PDF_SCALE + Number.EPSILON) * 100) / 100;
 
 export const createGrowthReportDocument = (
   reactPdf: ReactPdfModule,
